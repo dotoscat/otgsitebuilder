@@ -5,6 +5,8 @@ import (
     "fmt"
     "flag"
     "os"
+
+    "github.com/dotoscat/otgsitebuilder/src/manager"
     )
 
 const (
@@ -18,14 +20,6 @@ func main() {
     flag.StringVar(&mode, "mode", "", "Set the mode of use of this tool")
     flag.StringVar(&content, "content", "", "The content to work with (a valid directory path)")
     flag.Parse()
-    switch (mode) {
-        case MANAGER_MODE:
-            fmt.Println("Manager mode")
-        case BUILDER_MODE:
-            fmt.Println("Builder mode")
-        default:
-            log.Fatalln("Specify '-mode' (manager or builder)")
-    }
     if len(content) == 0 {
         log.Fatalln("'-content' path is empty")
     }
@@ -33,6 +27,15 @@ func main() {
         log.Fatalln(err)
     } else if !pathInfo.IsDir() {
         log.Fatalln(content, "is not a valid dir")
+    }
+    switch (mode) {
+        case MANAGER_MODE:
+            fmt.Println("Manager mode")
+            manager.ManageDatabase(content)
+        case BUILDER_MODE:
+            fmt.Println("Builder mode")
+        default:
+            log.Fatalln("Specify '-mode' (manager or builder)")
     }
     flag.PrintDefaults()
     fmt.Println(flag.Arg(0), flag.Arg(1), flag.Arg(2))
