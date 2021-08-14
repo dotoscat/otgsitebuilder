@@ -7,6 +7,7 @@ import (
     "os"
 
     "github.com/dotoscat/otgsitebuilder/src/manager"
+    "github.com/dotoscat/otgsitebuilder/src/builder"
     )
 
 const (
@@ -37,6 +38,7 @@ func main() {
                 manager.ManageDatabase(content, filename)
             }
         case BUILDER_MODE:
+            builder.Build(content)
             fmt.Println("Builder mode")
         default:
             log.Fatalln("Specify '-mode' (manager or builder)")
