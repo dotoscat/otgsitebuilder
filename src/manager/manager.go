@@ -24,20 +24,35 @@ const (
     TYPE_PAGE
 )
 
-type Content struct {
-    db *sql.DB
-    postsPath string
-}
-
 type File struct {
     id int64
     file string
     ftype int64
     date time.Time
+    path string
 }
 
-func (f *File) Fill(row *sql.Row) error {
-    return row.Scan(&f.id, &f.file, &f.date, &f.ftype)
+func (f *File) Fill(row *sql.Row, basePath string) error {
+    err := row.Scan(&f.id, &f.file, &f.date, &f.ftype)
+    if err != nil {
+        return err
+    }
+    f.path = filepath.Join(basePath, f.file)
+    return err
+}
+
+func (f *File) Path() string {
+    return f.path
+}
+
+type Content struct {
+    db *sql.DB
+    postsPath string
+}
+
+func (c Content) indexFile(filename string, ftype int64) {
+    const QUERY_INDEX_FILE = "INSERT INTO CONTENT (file, contenttype_id) VALUES (?, ?)"
+    c.db.Exec(QUERY_INDEX_FILE, filename, ftype)
 }
 
 func (c Content) GetFile(filename string) File {
@@ -56,7 +71,7 @@ func (c Content) GetFile(filename string) File {
     file := File{}
     const QUERY_FILE = "SELECT id, file, date, contenttype_id FROM Content WHERE file = ?"
     row := c.db.QueryRow(QUERY_FILE, filename)
-    err := file.Fill(row)
+    err := file.Fill(row, c.postsPath)
     fmt.Println("query:", QUERY_FILE, ";filename:", filename)
     fmt.Println("First fill error:", err)
     if err == sql.ErrNoRows {
@@ -73,7 +88,7 @@ func (c Content) GetFile(filename string) File {
             }
             const QUERY_INDEX_FILE_ID = "SELECT id, file, date, contenttype_id FROM Content WHERE id = ?"
             row := c.db.QueryRow(QUERY_INDEX_FILE_ID, id)
-            if err := file.Fill(row); err != nil { // I hope not
+            if err := file.Fill(row, c.postsPath); err != nil { // I hope not
                 log.Fatalln(err)
             }
         }
@@ -81,6 +96,23 @@ func (c Content) GetFile(filename string) File {
         log.Fatalln(err)
     }
     return file
+}
+
+func (c Content) GetPosts() []File {
+    // Index all files if they are not indexed
+    files := make([]File, 0)
+    entries, err := os.ReadDir(c.postsPath)
+    if err != nil {
+        log.Fatalln(err)
+    }
+    for _, entry := range entries {
+        if entry.IsDir() {
+            continue
+        }
+        file := c.GetFile(entry.Name())
+        files = append(files, file)
+    }
+    return files
 }
 
 func OpenContent(base string) Content {

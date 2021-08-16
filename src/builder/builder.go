@@ -15,5 +15,6 @@ func Build(base string) {
     //to output
     content := manager.OpenContent(base)
     fmt.Println(content)
-
+    posts := content.GetPosts()
+    fmt.Println(posts)
 }
