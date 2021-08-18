@@ -3,6 +3,9 @@ package builder
 import (
     "fmt"
     "embed"
+    // "path/filepath"
+    "os"
+    "log"
 
     "github.com/dotoscat/otgsitebuilder/src/manager"
 )
@@ -11,10 +14,59 @@ import (
 //go:embed templates/postspage.tmpl
 var basicTemplates embed.FS
 
+type Page []manager.File
+type Pages []Page
+type Website struct {
+    pages Pages
+}
+
+func (w Website) Pages() Pages {
+    return w.pages
+}
+
+func NewWebsite(postsPerPage int, posts []manager.File) Website {
+    nPages := len(posts) / postsPerPage
+    postsExtraPage := len(posts) % postsPerPage
+    extraPage := postsExtraPage > 0
+    if extraPage {
+        nPages++
+    }
+    iPosts := 0
+    pages := make(Pages, nPages)
+    for iPage := 0; iPage < nPages; iPage++ {
+        var totalPosts int
+        if iPage == nPages-1 && extraPage {
+            totalPosts = postsExtraPage
+        } else {
+            totalPosts = postsPerPage
+        }
+        pages[iPage] = make(Page, totalPosts)
+        for i := 0; i < totalPosts; i++ {
+            pages[iPage][i] = posts[iPosts]
+            iPosts++
+        }
+    }
+    fmt.Println("nPages:", nPages, ";extraPage:", extraPage)
+    return Website{pages}
+}
+
 func Build(base string) {
     //to output
+    outputDirPath := "output"
+    if outputDirInfo, err := os.Stat(outputDirPath); os.IsNotExist(err) {
+        fmt.Println("Create", outputDirPath)
+        if err := os.MkdirAll(outputDirPath, os.ModeDir); err != nil {
+            log.Fatalln(err)
+        }
+    } else if !outputDirInfo.IsDir() {
+        log.Fatalln(outputDirPath, "is not a dir!")
+    }
     content := manager.OpenContent(base)
     fmt.Println(content)
     posts := content.GetPosts()
     fmt.Println(posts)
+    // distribute posts (files) in pages
+    const postsPerPage = 3
+    website := NewWebsite(postsPerPage, posts)
+    fmt.Println(website)
 }
