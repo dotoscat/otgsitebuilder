@@ -3,9 +3,10 @@ package builder
 import (
     "fmt"
     "embed"
-    // "path/filepath"
+    "path/filepath"
     "os"
     "log"
+    "html/template"
 
     "github.com/dotoscat/otgsitebuilder/src/manager"
 )
@@ -69,4 +70,24 @@ func Build(base string) {
     const postsPerPage = 3
     website := NewWebsite(postsPerPage, posts)
     fmt.Println(website)
+    postTemplate, err := template.ParseFS(basicTemplates, "templates/*.tmpl")
+    if err != nil {
+        log.Fatalln(err)
+    }
+    for i, page := range website.Pages() {
+        var outputFilePath string
+        if i == 0 {
+            outputFilePath = filepath.Join(outputDirPath, "index.html")
+        } else {
+            outputFilePath = filepath.Join(outputDirPath, fmt.Sprint("index", i, ".html"))
+        }
+        outputFile, err := os.Create(outputFilePath)
+        defer outputFile.Close()
+        if err != nil {
+            log.Fatalln(err)
+        }
+        if err := postTemplate.Execute(outputFile, page); err != nil {
+            log.Fatalln(err)
+        }
+    }
 }
