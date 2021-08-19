@@ -1,5 +1,9 @@
 {{ template "" }}
 {{ block "body" . }}
-    <h2>Hello world!</h2>
-    <p>Hello world</p>
+    <h1>My Awesome Site!</h1>
+    <ul>
+        {{ range .CurrentPage.Writings }}
+            <li>{{ .RenderHeader }} - {{ .RenderContent }}</li>
+        {{ end }}
+    </ul>
 {{ end }}

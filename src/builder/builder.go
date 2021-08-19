@@ -23,19 +23,28 @@ func NewWriting(file manager.File) Writing {
     return Writing{file}
 }
 
+func (w Writing) RenderHeader() string {
+    return fmt.Sprint(w.Date())
+}
+
+func (w Writing) RenderContent() string{
+    return "Hello"
+}
+
 type Page struct {
-    writings []Writing
+    Writings []Writing
     // Last
     // Next
 }
 
-func (p *Page) addWriting(writing Writing) Writing {
-    p.writings = append(p.writings, writing)
-    return writing
+type PageContext struct {
+    CurrentPage Page
+    Website Website
 }
 
-func (p *Page) Writings() []Writing {
-    return p.writings
+func (p *Page) addWriting(writing Writing) Writing {
+    p.Writings = append(p.Writings, writing)
+    return writing
 }
 
 type Pages []Page
@@ -109,7 +118,7 @@ func Build(base string) {
         if err != nil {
             log.Fatalln(err)
         }
-        if err := postTemplate.Execute(outputFile, page); err != nil {
+        if err := postTemplate.Execute(outputFile, PageContext{page, website}); err != nil {
             log.Fatalln(err)
         }
     }
