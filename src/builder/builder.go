@@ -15,8 +15,31 @@ import (
 //go:embed templates/postspage.tmpl
 var basicTemplates embed.FS
 
-type Page []manager.File
+type Writing struct{
+    manager.File
+}
+
+func NewWriting(file manager.File) Writing {
+    return Writing{file}
+}
+
+type Page struct {
+    writings []Writing
+    // Last
+    // Next
+}
+
+func (p *Page) addWriting(writing Writing) Writing {
+    p.writings = append(p.writings, writing)
+    return writing
+}
+
+func (p *Page) Writings() []Writing {
+    return p.writings
+}
+
 type Pages []Page
+
 type Website struct {
     pages Pages
 }
@@ -41,9 +64,9 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
         } else {
             totalPosts = postsPerPage
         }
-        pages[iPage] = make(Page, totalPosts)
+        pages[iPage] = Page{}
         for i := 0; i < totalPosts; i++ {
-            pages[iPage][i] = posts[iPosts]
+            pages[iPage].addWriting(NewWriting(posts[iPosts]))
             iPosts++
         }
     }
