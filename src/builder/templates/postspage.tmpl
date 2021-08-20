@@ -3,7 +3,12 @@
     <h1>My Awesome Site!</h1>
     <ul>
         {{ range .CurrentPage.Writings }}
-            <li>{{ .RenderHeader }} - {{ .RenderContent }}</li>
+            <li>
+                <section>
+                <h2>{{ .RenderHeader }}</h2>
+                <article>{{ .RenderContent }}</article>
+                </section>
+            </li>
         {{ end }}
     </ul>
 {{ end }}

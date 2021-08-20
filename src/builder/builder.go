@@ -6,8 +6,10 @@ import (
     "path/filepath"
     "os"
     "log"
-    "html/template"
+    "text/template"
 
+    "github.com/gomarkdown/markdown"
+    "github.com/gomarkdown/markdown/html"
     "github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
@@ -28,7 +30,20 @@ func (w Writing) RenderHeader() string {
 }
 
 func (w Writing) RenderContent() string{
-    return "Hello"
+    var content string
+    renderer := html.NewRenderer(html.RendererOptions{Flags: html.CommonFlags})
+    if source, err := os.ReadFile(w.Path()); err != nil {
+        log.Fatalln(err)
+    } else {
+        content = string(markdown.ToHTML(source, nil, renderer))
+    }
+    return content
+}
+
+// RenderPartialContent returns up to 'n' characters from the markdown file
+func (w Writing) RenderPartialContent(n uint) string {
+    content := w.RenderContent()
+    return content[:n]
 }
 
 type Page struct {
