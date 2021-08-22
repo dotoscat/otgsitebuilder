@@ -1,15 +1,16 @@
-{{ template "" }}
+{{ template "base" }}
 {{ block "body" . }}
     <h1>My Awesome Site!</h1>
     <ul>
         {{ range .CurrentPage.Writings }}
             <li>
                 <section>
-                <h2><a href="">{{ .RenderHeader }}</a></h2>
+                <h2><a href="{{ .Url }}">{{ .RenderHeader }}</a></h2>
                 {{ $content := .RenderPartialContent 255 }}
-                <article>{{ $content }}</article>
-                {{ if eq (len $content) 255 }}
-                <p><a href="">+</a></p>
+                {{ $readMore := eq (len $content) 255 }}
+                <article>{{ $content }}{{ if $readMore }}(...){{ end }}</article>
+                {{ if $readMore }}
+                <p><a href="{{ .Url }}">+</a></p>
                 {{ end }}
                 </section>
             </li>

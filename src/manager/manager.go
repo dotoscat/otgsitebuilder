@@ -41,6 +41,10 @@ func (f *File) Fill(row *sql.Row, basePath string) error {
     return err
 }
 
+func (f File) Name() string {
+    return f.file
+}
+
 func (f *File) Date() time.Time {
     return f.date
 }

@@ -6,6 +6,7 @@ import (
     "path/filepath"
     "os"
     "log"
+    "strings"
     "text/template"
 
     "github.com/gomarkdown/markdown"
@@ -16,12 +17,19 @@ import (
 //go:embed templates/postspage.tmpl
 var basicTemplates embed.FS
 
+//go:embed templates/base.tmpl
+//go:embed templates/writing.tmpl
+var writingTemplate embed.FS
+
 type Writing struct{
     manager.File
+    url string
 }
 
-func NewWriting(file manager.File) Writing {
-    return Writing{file}
+func NewWriting(file manager.File, baseUrl string) Writing {
+    url := fmt.Sprint(baseUrl, "/", strings.Replace(file.Name(), ".md", ".html", -1))
+    fmt.Println("url:", url)
+    return Writing{file, url}
 }
 
 func (w Writing) RenderHeader() string {
@@ -38,6 +46,10 @@ func (w Writing) RenderContent() string{
     return content
 }
 
+func (w Writing) Url() string {
+    return w.url
+}
+
 // RenderPartialContent returns up to 'n' characters from the markdown file
 func (w Writing) RenderPartialContent(n int) string {
     content := w.RenderContent()
@@ -45,6 +57,11 @@ func (w Writing) RenderPartialContent(n int) string {
         return content[:max]
     }
     return content[:n]
+}
+
+type WritingContext struct {
+    Writing Writing
+    Website Website
 }
 
 type Page struct {
@@ -133,7 +150,8 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
         newPage := Page{parent: &pages, index: iPage, url: url}
         pages[iPage] = newPage
         for i := 0; i < totalPosts; i++ {
-            pages[iPage].addWriting(NewWriting(posts[iPosts]))
+            writing := NewWriting(posts[iPosts], "posts")
+            pages[iPage].addWriting(writing)
             iPosts++
         }
     }
@@ -144,6 +162,7 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
 func Build(base string) {
     //to output
     outputDirPath := "output"
+    postsOutputDirPath := filepath.Join(outputDirPath, "posts")
     if outputDirInfo, err := os.Stat(outputDirPath); os.IsNotExist(err) {
         fmt.Println("Create", outputDirPath)
         if err := os.MkdirAll(outputDirPath, os.ModeDir); err != nil {
@@ -151,6 +170,9 @@ func Build(base string) {
         }
     } else if !outputDirInfo.IsDir() {
         log.Fatalln(outputDirPath, "is not a dir!")
+    }
+    if err := os.MkdirAll(postsOutputDirPath, os.ModeDir); err != nil {
+        log.Fatalln(err)
     }
     content := manager.OpenContent(base)
     fmt.Println(content)
@@ -161,6 +183,10 @@ func Build(base string) {
     website := NewWebsite(postsPerPage, posts)
     fmt.Println("website pages:", website.Pages())
     postTemplate, err := template.ParseFS(basicTemplates, "templates/*.tmpl")
+    if err != nil {
+        log.Fatalln(err)
+    }
+    writingTemplate, err := template.ParseFS(writingTemplate, "templates/*.tmpl")
     if err != nil {
         log.Fatalln(err)
     }
@@ -178,6 +204,19 @@ func Build(base string) {
         }
         if err := postTemplate.Execute(outputFile, PageContext{page, website}); err != nil {
             log.Fatalln(err)
+        }
+        for _, writing := range page.Writings() {
+            outputWritingPath := filepath.Join(outputDirPath, writing.Url())
+            fmt.Println("output writing:", outputWritingPath)
+            outputWriting, err := os.Create(outputWritingPath)
+            defer outputWriting.Close()
+            if err != nil {
+                log.Fatalln(err)
+            }
+            if err := writingTemplate.Execute(outputWriting, WritingContext{writing, website}); err != nil {
+                log.Fatalln(err)
+            }
+            fmt.Println(writing)
         }
     }
 }

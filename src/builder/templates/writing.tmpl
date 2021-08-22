@@ -1,0 +1,9 @@
+{{ template "base" }}
+{{ block "body" . }}
+    <article>
+        {{ .Writing.RenderContent }}
+    </article>
+    <nav>
+        <a href="/">&#127968;</a>
+    </nav>
+{{ end }}
