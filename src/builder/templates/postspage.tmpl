@@ -5,11 +5,11 @@
         {{ range .CurrentPage.Writings }}
             <li>
                 <section>
-                <h2>{{ .RenderHeader }}</h2>
+                <h2><a href="">{{ .RenderHeader }}</a></h2>
                 {{ $content := .RenderPartialContent 255 }}
                 <article>{{ $content }}</article>
-                {{ if gt (len $content) 255 }}
-                <p>Leer mas</p>
+                {{ if eq (len $content) 255 }}
+                <p><a href="">+</a></p>
                 {{ end }}
                 </section>
             </li>
