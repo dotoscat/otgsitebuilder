@@ -18,10 +18,10 @@
     <nav>
         <ul>
             {{ if .CurrentPage.HasLast }}
-            <li><a href="">Last</a></li>
+            <li><a href="{{ .CurrentPage.Last.Url }}">Last</a></li>
             {{ end }}
             {{ if .CurrentPage.HasNext }}
-            <li><a href="">Next</a></li>
+            <li><a href="{{ .CurrentPage.Next.Url }}">Next</a></li>
             {{ end }}
         </ul>
     </nav>

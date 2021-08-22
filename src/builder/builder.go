@@ -115,6 +115,7 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
     if extraPage {
         nPages++
     }
+    var url string
     iPosts := 0
     pages := make(Pages, nPages)
     for iPage := 0; iPage < nPages; iPage++ {
@@ -124,7 +125,12 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
         } else {
             totalPosts = postsPerPage
         }
-        newPage := Page{parent: &pages, index: iPage}
+        if iPage == 0 {
+            url = "/index.html"
+        } else {
+            url = fmt.Sprint("/index", iPage, ".html")
+        }
+        newPage := Page{parent: &pages, index: iPage, url: url}
         pages[iPage] = newPage
         for i := 0; i < totalPosts; i++ {
             pages[iPage].addWriting(NewWriting(posts[iPosts]))
