@@ -15,4 +15,14 @@
             </li>
         {{ end }}
     </ul>
+    <nav>
+        <ul>
+            {{ if .CurrentPage.HasLast }}
+            <li><a href="">Last</a></li>
+            {{ end }}
+            {{ if .CurrentPage.HasNext }}
+            <li><a href="">Next</a></li>
+            {{ end }}
+        </ul>
+    </nav>
 {{ end }}

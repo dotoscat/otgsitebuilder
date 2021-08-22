@@ -48,19 +48,54 @@ func (w Writing) RenderPartialContent(n int) string {
 }
 
 type Page struct {
-    Writings []Writing
-    // Last
-    // Next
+    parent *Pages
+    index int
+    writings []Writing
+    url string
+}
+
+func (p Page) HasLast() bool {
+    return p.index - 1 >= 0
+}
+
+func (p Page) HasNext() bool {
+    return p.index + 1 < len(*p.parent)
+}
+
+func (p Page) Last() Page {
+    if p.HasLast() {
+        return (*p.parent)[p.index-1]
+    }
+    return Page{}
+}
+
+func (p Page) Next() Page {
+    if p.HasNext() {
+        return (*p.parent)[p.index+1]
+    }
+    return Page{}
+}
+
+func (p Page) Url() string {
+    return p.url
+}
+
+func (p Page) Empty() bool {
+    return p.parent == nil
+}
+
+func (p Page) Writings() []Writing {
+    return p.writings
+}
+
+func (p *Page) addWriting(writing Writing) Writing {
+    p.writings = append(p.writings, writing)
+    return writing
 }
 
 type PageContext struct {
     CurrentPage Page
     Website Website
-}
-
-func (p *Page) addWriting(writing Writing) Writing {
-    p.Writings = append(p.Writings, writing)
-    return writing
 }
 
 type Pages []Page
@@ -89,7 +124,8 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
         } else {
             totalPosts = postsPerPage
         }
-        pages[iPage] = Page{}
+        newPage := Page{parent: &pages, index: iPage}
+        pages[iPage] = newPage
         for i := 0; i < totalPosts; i++ {
             pages[iPage].addWriting(NewWriting(posts[iPosts]))
             iPosts++
@@ -117,7 +153,7 @@ func Build(base string) {
     // distribute posts (files) in pages
     const postsPerPage = 3
     website := NewWebsite(postsPerPage, posts)
-    fmt.Println(website)
+    fmt.Println("website pages:", website.Pages())
     postTemplate, err := template.ParseFS(basicTemplates, "templates/*.tmpl")
     if err != nil {
         log.Fatalln(err)
