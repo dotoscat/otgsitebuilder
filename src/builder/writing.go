@@ -4,6 +4,7 @@ import (
     "fmt"
     "strings"
     "os"
+    "log"
 
     "github.com/gomarkdown/markdown"
     "github.com/dotoscat/otgsitebuilder/src/manager"

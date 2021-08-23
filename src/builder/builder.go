@@ -6,10 +6,8 @@ import (
     "path/filepath"
     "os"
     "log"
-    "strings"
     "text/template"
 
-    "github.com/gomarkdown/markdown"
     "github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
@@ -29,48 +27,6 @@ type WritingContext struct {
 type PageContext struct {
     CurrentPage Page
     Website Website
-}
-
-type Website struct {
-    pages Pages
-}
-
-func (w Website) Pages() Pages {
-    return w.pages
-}
-
-func NewWebsite(postsPerPage int, posts []manager.File) Website {
-    nPages := len(posts) / postsPerPage
-    postsExtraPage := len(posts) % postsPerPage
-    extraPage := postsExtraPage > 0
-    if extraPage {
-        nPages++
-    }
-    var url string
-    iPosts := 0
-    pages := make(Pages, nPages)
-    for iPage := 0; iPage < nPages; iPage++ {
-        var totalPosts int
-        if iPage == nPages-1 && extraPage {
-            totalPosts = postsExtraPage
-        } else {
-            totalPosts = postsPerPage
-        }
-        if iPage == 0 {
-            url = "/index.html"
-        } else {
-            url = fmt.Sprint("/index", iPage, ".html")
-        }
-        newPage := Page{parent: &pages, index: iPage, url: url}
-        pages[iPage] = newPage
-        for i := 0; i < totalPosts; i++ {
-            writing := NewWriting(posts[iPosts], "posts")
-            pages[iPage].addWriting(writing)
-            iPosts++
-        }
-    }
-    fmt.Println("nPages:", nPages, ";extraPage:", extraPage)
-    return Website{pages}
 }
 
 func Build(base string) {
