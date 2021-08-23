@@ -26,58 +26,10 @@ type WritingContext struct {
     Website Website
 }
 
-type Page struct {
-    parent *Pages
-    index int
-    writings []Writing
-    url string
-}
-
-func (p Page) HasLast() bool {
-    return p.index - 1 >= 0
-}
-
-func (p Page) HasNext() bool {
-    return p.index + 1 < len(*p.parent)
-}
-
-func (p Page) Last() Page {
-    if p.HasLast() {
-        return (*p.parent)[p.index-1]
-    }
-    return Page{}
-}
-
-func (p Page) Next() Page {
-    if p.HasNext() {
-        return (*p.parent)[p.index+1]
-    }
-    return Page{}
-}
-
-func (p Page) Url() string {
-    return p.url
-}
-
-func (p Page) Empty() bool {
-    return p.parent == nil
-}
-
-func (p Page) Writings() []Writing {
-    return p.writings
-}
-
-func (p *Page) addWriting(writing Writing) Writing {
-    p.writings = append(p.writings, writing)
-    return writing
-}
-
 type PageContext struct {
     CurrentPage Page
     Website Website
 }
-
-type Pages []Page
 
 type Website struct {
     pages Pages
