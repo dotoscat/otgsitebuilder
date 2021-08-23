@@ -21,44 +21,6 @@ var basicTemplates embed.FS
 //go:embed templates/writing.tmpl
 var writingTemplate embed.FS
 
-type Writing struct{
-    manager.File
-    url string
-}
-
-func NewWriting(file manager.File, baseUrl string) Writing {
-    url := fmt.Sprint(baseUrl, "/", strings.Replace(file.Name(), ".md", ".html", -1))
-    fmt.Println("url:", url)
-    return Writing{file, url}
-}
-
-func (w Writing) RenderHeader() string {
-    return fmt.Sprint(w.Date())
-}
-
-func (w Writing) RenderContent() string{
-    var content string
-    if source, err := os.ReadFile(w.Path()); err != nil {
-        log.Fatalln(err)
-    } else {
-        content = string(markdown.ToHTML(source, nil, nil))
-    }
-    return content
-}
-
-func (w Writing) Url() string {
-    return w.url
-}
-
-// RenderPartialContent returns up to 'n' characters from the markdown file
-func (w Writing) RenderPartialContent(n int) string {
-    content := w.RenderContent()
-    if max := len(content); max < n || n <= 0{
-        return content[:max]
-    }
-    return content[:n]
-}
-
 type WritingContext struct {
     Writing Writing
     Website Website
