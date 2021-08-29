@@ -17,7 +17,7 @@ func (w Website) Pages() Pages {
 }
 
 //NewWebsite returns info about the website.
-func NewWebsite(postsPerPage int, posts []manager.File) Website {
+func NewWebsite(postsPerPage int, posts []manager.Post) Website {
     nPages := len(posts) / postsPerPage
     postsExtraPage := len(posts) % postsPerPage
     extraPage := postsExtraPage > 0
@@ -42,7 +42,7 @@ func NewWebsite(postsPerPage int, posts []manager.File) Website {
         newPage := Page{parent: &pages, index: iPage, url: url}
         pages[iPage] = newPage
         for i := 0; i < totalPosts; i++ {
-            writing := NewWriting(posts[iPosts], "posts")
+            writing := NewWriting(&(posts[iPosts]), "posts")
             pages[iPage].addWriting(writing)
             iPosts++
         }

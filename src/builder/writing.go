@@ -12,19 +12,19 @@ import (
 
 //Writing stores a copy of the manager.File and a final url of the post
 type Writing struct{
-    manager.File
+    manager.Filer
     url string
 }
 
 //NewWriting constructs a Writing value with a baseUrl to be used along with the the manager.File Name
-func NewWriting(file manager.File, baseUrl string) Writing {
+func NewWriting(file manager.Filer, baseUrl string) Writing {
     url := fmt.Sprint(baseUrl, "/", strings.Replace(file.Name(), ".md", ".html", -1))
     return Writing{file, url}
 }
 
 //RenderHeader returns info about this file stored in the database to be used as a header
 func (w Writing) RenderHeader() string {
-    return fmt.Sprint(w.Date())
+   return w.Header()
 }
 
 //RenderContent returns HTML from a markdown format writing
