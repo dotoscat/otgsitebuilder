@@ -7,6 +7,7 @@ import (
     "time"
     "database/sql"
     "os"
+    "io/fs"
     "errors"
     _ "embed"
 
@@ -157,7 +158,7 @@ func (c Content) GetPostFile(filename string) Post {
 }
 
 func (c Content) GetFile(filename string) interface{} {
-    if isPost, err := c.CheckInPostsFolder(filename); err != nil {
+    if isPost, err := c.CheckInPostsFolder(filename); !errors.Is(err, fs.ErrNotExist) {
         log.Fatalln(err)
     } else if isPost {
         return c.GetPostFile(filename)
