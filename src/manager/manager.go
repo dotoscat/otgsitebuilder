@@ -163,47 +163,6 @@ func (c Content) GetFile(filename string) interface{} {
         return c.GetPostFile(filename)
     }
     return nil
-    /*
-    postsFilePath := filepath.Join(c.postsPath, filename)
-    // var inFileSystem bool
-    if info, err := os.Stat(postsFilePath); err != nil {
-        log.Fatalln(err)
-    } else if info.IsDir() {
-        log.Fatalln(filename, "is a directory.")
-    } else {
-        fmt.Println("info:", info)
-    }
-    // check if indexed
-    fmt.Println("file:", filename)
-    file := File{}
-    const QUERY_FILE = "SELECT id, file, date, contenttype_id FROM Content WHERE file = ?"
-    row := c.db.QueryRow(QUERY_FILE, filename)
-    err := file.Fill(row, c.postsPath)
-    fmt.Println("query:", QUERY_FILE, ";filename:", filename)
-    fmt.Println("First fill error:", err)
-    if err == sql.ErrNoRows {
-        const QUERY_INDEX_FILE = "INSERT INTO CONTENT (file, contenttype_id) VALUES (?, ?)"
-        result, err := c.db.Exec(QUERY_INDEX_FILE, filename)
-        fmt.Println("result:", result, ";err:", err)
-        if err != nil {
-            log.Fatalln(err)
-        } else {
-            id, err := result.LastInsertId()
-            fmt.Println("id:", id)
-            if err != nil {
-                log.Fatalln(err)
-            }
-            const QUERY_INDEX_FILE_ID = "SELECT id, file, date, contenttype_id FROM Content WHERE id = ?"
-            row := c.db.QueryRow(QUERY_INDEX_FILE_ID, id)
-            if err := file.Fill(row, c.postsPath); err != nil { // I hope not
-                log.Fatalln(err)
-            }
-        }
-    } else if err != nil {
-        log.Fatalln(err)
-    }
-    return file
-    */
 }
 
 func (c Content) GetPosts() []Post {
