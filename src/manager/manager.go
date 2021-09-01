@@ -107,39 +107,67 @@ var (
     ErrNotIndexed = errors.New("File is not indexed.")
 )
 
-func (c Content) CheckInPostsFolder(filename string) (bool, error) {
-    postsFilePath := filepath.Join(c.postsPath, filename)
-    if info, err := os.Stat(postsFilePath); err != nil {
+func checkInFolder(path string) (bool, error) {
+    if info, err := os.Stat(path); err != nil {
         return false, err
     } else if info.IsDir() {
         return false, ErrIsDir
-    } else {
-        fmt.Println("info:", info)
     }
     return true, nil
 }
 
-func (c Content) GetPostMetadata(filename string) (Post, error) {
-    const QUERY = "SELECT id, name, date FROM Post WHERE name = ?"
-    row := c.db.QueryRow(QUERY, filename)
-    post := Post{}
-    err := post.Fill(row, c.postsPath)
+func (c Content) CheckInPagesFolder(filename string) (bool, error) {
+    pagesFilePath := filepath.Join(c.pagesPath, filename)
+    return checkInFolder(pagesFilePath)
+}
+
+func (c Content) CheckInPostsFolder(filename string) (bool, error) {
+    postsFilePath := filepath.Join(c.postsPath, filename)
+    return checkInFolder(postsFilePath)
+}
+
+func (c Content) getMetadata(recipient Filer, query string, values ...interface{}) error {
+    row := c.db.QueryRow(query, values...)
+    err := recipient.Fill(row, c.postsPath)
     if err == sql.ErrNoRows {
-        return post, ErrNotIndexed
+        return ErrNotIndexed
     } else if err != nil {
         log.Fatalln(err)
     }
+    return err
+}
+
+func (c Content) GetPageMetadata(filename string) (Page, error) {
+    const QUERY = "SELECT id, name, reference FROM Page WHERE name = ?"
+    page := Page{}
+    err := c.getMetadata(&page, QUERY, filename)
+    return page, err
+}
+
+func (c Content) GetPostMetadata(filename string) (Post, error) {
+    const QUERY = "SELECT id, name, date FROM Post WHERE name = ?"
+    post := Post{}
+    err := c.getMetadata(&post, QUERY, filename)
     return post, err
 }
 
-func (c Content) CreatePostMetadata(filename string) (int64, error) {
-    const QUERY = "INSERT INTO Post (name) VALUES (?)"
-    result, err := c.db.Exec(QUERY, filename)
+func (c Content) createMetadata(query string, values ...interface{}) (int64, error) {
+    result, err := c.db.Exec(query, values...)
     if err != nil {
         return 0, err
     }
     id, err := result.LastInsertId()
     return id, err
+}
+
+func (c Content) CreatePostMetadata(filename string) (int64, error) {
+    const QUERY = "INSERT INTO Post (name) VALUES (?)"
+    return c.createMetadata(QUERY, filename)
+}
+
+func (c Content) CreatePageMetadata(filename string) (int64, error) {
+    const QUERY = "INSERT INTO Page (name) VALUES (?)"
+    return c.createMetadata(QUERY, filename)
 }
 
 func (c Content) GetPostFile(filename string) Post {
@@ -157,11 +185,31 @@ func (c Content) GetPostFile(filename string) Post {
     return Post{}
 }
 
-func (c Content) GetFile(filename string) interface{} {
-    if isPost, err := c.CheckInPostsFolder(filename); !errors.Is(err, fs.ErrNotExist) {
+func (c Content) GetPageFile(filename string) Page {
+    if page, err := c.GetPageMetadata(filename); err != nil && err != ErrNotIndexed {
         log.Fatalln(err)
+    } else if err == ErrNotIndexed {
+        if _, err := c.CreatePageMetadata(filename); err != nil {
+            log.Fatalln(err)
+        } else {
+            return c.GetPageFile(filename)
+        }
+    } else {
+        return page
+    }
+    return Page{}
+}
+
+func (c Content) GetFile(filename string) interface{} {
+    if isPost, err := c.CheckInPostsFolder(filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
+        log.Fatalln("Is not 'ErrNotExist'", err)
     } else if isPost {
         return c.GetPostFile(filename)
+    }
+    if isPage, err := c.CheckInPagesFolder(filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
+        log.Fatalln("Is not 'ErrNotExist'", err)
+    } else if isPage {
+        return c.GetPageFile(filename)
     }
     return nil
 }
