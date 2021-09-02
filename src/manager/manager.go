@@ -7,7 +7,6 @@ import (
     "time"
     "database/sql"
     "os"
-    "io/fs"
     "errors"
     _ "embed"
 
@@ -200,20 +199,6 @@ func (c Content) GetPageFile(filename string) Page {
     return Page{}
 }
 
-func (c Content) GetFile(filename string) interface{} {
-    if isPost, err := c.CheckInPostsFolder(filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
-        log.Fatalln("Is not 'ErrNotExist'", err)
-    } else if isPost {
-        return c.GetPostFile(filename)
-    }
-    if isPage, err := c.CheckInPagesFolder(filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
-        log.Fatalln("Is not 'ErrNotExist'", err)
-    } else if isPage {
-        return c.GetPageFile(filename)
-    }
-    return nil
-}
-
 func (c Content) GetPosts() []Post {
     // Index all files if they are not indexed
     files := make([]Post, 0)
@@ -249,11 +234,4 @@ func OpenContent(base string) Content {
         log.Fatalln(err)
     }
     return Content{db, posts, pages}
-}
-
-func ManageDatabase(base, filename string) {
-    content := OpenContent(base)
-    fmt.Println("content: ", content)
-    contentFile := content.GetFile(filename)
-    fmt.Println("file:", contentFile)
 }
