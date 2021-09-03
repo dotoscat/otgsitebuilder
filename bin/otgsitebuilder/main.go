@@ -27,7 +27,7 @@ type DateValue struct {
 
 func (dv DateValue) String() string {
     year, month, day := dv.time.Date()
-    return fmt.Sprintf("%v-%v-%v", year, month, day)
+    return fmt.Sprintf("%v-%02v-%02v", year, int(month), day)
 }
 
 func (dv *DateValue) Set(value string) error {
@@ -51,7 +51,7 @@ func (dv *DateValue) Set(value string) error {
     if err != nil {
         return err
     }
-    dv.time = time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
+    dv.time = time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
     dv.requested = true
     fmt.Println("requested:", dv.requested)
     return nil
