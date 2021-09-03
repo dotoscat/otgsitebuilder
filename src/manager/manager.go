@@ -31,6 +31,7 @@ type File struct {
     id int64
     name string
     path string
+    db *sql.DB
 }
 
 func (f File) Name() string {
@@ -45,6 +46,14 @@ func (f File) Path() string {
     return f.path
 }
 
+func (f *File) setDB(db *sql.DB) {
+    f.db = db
+}
+
+func (f File) IsValid() bool {
+    return f.db != nil
+}
+
 func (f *File) SetPath(path string) {
     f.path = path
 }
@@ -56,6 +65,21 @@ type Post struct {
 
 func (p Post) Date() time.Time {
     return p.date
+}
+
+func (p Post) SetDate(date string) error {
+    if !p.IsValid() {
+        return ErrNoValid
+    }
+    const QUERY = "UPDATE POST SET date = ? WHERE id = ?"
+    result, err := p.db.Exec(QUERY, date, p.id);
+    n, err2 := result.RowsAffected()
+    fmt.Println("err1:", err)
+    fmt.Println("err2:", n, err2)
+    if err != nil {
+        log.Fatalln(err)
+    }
+    return err
 }
 
 func (p Post) Header() string {
@@ -104,6 +128,7 @@ type Content struct {
 var (
     ErrIsDir = errors.New("File is a directory.")
     ErrNotIndexed = errors.New("File is not indexed.")
+    ErrNoValid = errors.New("This file is not valid")
 )
 
 func checkInFolder(path string) (bool, error) {
@@ -139,6 +164,7 @@ func (c Content) getMetadata(recipient Filer, query string, values ...interface{
 func (c Content) GetPageMetadata(filename string) (Page, error) {
     const QUERY = "SELECT id, name, reference FROM Page WHERE name = ?"
     page := Page{}
+    page.db = c.db
     err := c.getMetadata(&page, QUERY, filename)
     return page, err
 }
@@ -147,6 +173,8 @@ func (c Content) GetPostMetadata(filename string) (Post, error) {
     const QUERY = "SELECT id, name, date FROM Post WHERE name = ?"
     post := Post{}
     err := c.getMetadata(&post, QUERY, filename)
+    post.setDB(c.db)
+    fmt.Println("post metadata:", post.db != nil, "content db:", c.db != nil)
     return post, err
 }
 
