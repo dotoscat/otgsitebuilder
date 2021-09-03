@@ -20,6 +20,12 @@ const (
     METADATA_FILE = ".metadata.db"
 )
 
+var (
+    ErrIsDir = errors.New("File is a directory.")
+    ErrNotIndexed = errors.New("File is not indexed.")
+    ErrNoValid = errors.New("This file is not valid")
+)
+
 type Filer interface { //Fil(l)er
     Fill(*sql.Row, string) error
     Name() string
@@ -118,18 +124,6 @@ type Content struct {
     postsPath string
     pagesPath string
 }
-
-// *get content (post | page)*
-// look at the file system: posts, pages
-// if not found, exit
-// select or created indexed content
-// return content
-
-var (
-    ErrIsDir = errors.New("File is a directory.")
-    ErrNotIndexed = errors.New("File is not indexed.")
-    ErrNoValid = errors.New("This file is not valid")
-)
 
 func checkInFolder(path string) (bool, error) {
     if info, err := os.Stat(path); err != nil {
