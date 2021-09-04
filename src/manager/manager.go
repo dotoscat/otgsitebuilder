@@ -69,6 +69,12 @@ type Post struct {
     date time.Time
 }
 
+func newPost(db *sql.DB) Post {
+    post := Post{}
+    post.setDB(db)
+    return post
+}
+
 func (p Post) Date() time.Time {
     return p.date
 }
@@ -94,6 +100,15 @@ func (p Post) Header() string {
 
 func (p *Post) Fill(row *sql.Row, basePath string) error {
     err := row.Scan(&p.id, &p.name, &p.date)
+    if err != nil {
+        return err
+    }
+    p.SetPath(filepath.Join(basePath, p.name))
+    return err
+}
+
+func (p *Post) FillFromRows(rows *sql.Rows, basePath string) error {
+    err := rows.Scan(&p.id, &p.name, &p.date)
     if err != nil {
         return err
     }
@@ -165,9 +180,8 @@ func (c Content) GetPageMetadata(filename string) (Page, error) {
 
 func (c Content) GetPostMetadata(filename string) (Post, error) {
     const QUERY = "SELECT id, name, date FROM Post WHERE name = ?"
-    post := Post{}
+    post := newPost(c.db)
     err := c.getMetadata(&post, QUERY, filename)
-    post.setDB(c.db)
     fmt.Println("post metadata:", post.db != nil, "content db:", c.db != nil)
     return post, err
 }
@@ -223,7 +237,7 @@ func (c Content) GetPageFile(filename string) Page {
 
 func (c Content) GetPosts() []Post {
     // Index all files if they are not indexed
-    files := make([]Post, 0)
+
     entries, err := os.ReadDir(c.postsPath)
     if err != nil {
         log.Fatalln(err)
@@ -232,7 +246,15 @@ func (c Content) GetPosts() []Post {
         if entry.IsDir() {
             continue
         }
-        post := c.GetPostFile(entry.Name())
+        c.GetPostFile(entry.Name()) // This function indexes if the file is not indexed, ignore the return value
+    }
+    const QUERY = "SELECT id, name, date FROM Post ORDER BY date DESC"
+    rows, err := c.db.Query(QUERY)
+    defer rows.Close()
+    files := make([]Post, 0)
+    for rows.Next() {
+        post := newPost(c.db)
+        post.FillFromRows(rows, c.postsPath)
         files = append(files, post)
     }
     return files
