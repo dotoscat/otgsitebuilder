@@ -297,7 +297,7 @@ func (c Content) GetPages() []Page {
     files := make([]Page, 0)
     for rows.Next() {
         page := newPage(c.db)
-        page.FillFromRows(rows, c.postsPath)
+        page.FillFromRows(rows, c.pagesPath)
         files = append(files, page)
     }
     return files
