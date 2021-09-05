@@ -24,33 +24,50 @@ type WritingContext struct {
     Website Website
 }
 
-type PageContext struct {
+type PostsPageContext struct {
     CurrentPage PostsPage
     Website Website
+}
+
+func mkdir(base, ext string) {
+    baseExtPath := filepath.Join(base, ext)
+    if baseExtPathInfo, err := os.Stat(baseExtPath); os.IsNotExist(err) {
+        fmt.Println("Create", baseExtPath)
+        if err := os.MkdirAll(baseExtPath, os.ModeDir); err != nil {
+            log.Fatalln(err)
+        }
+    } else if !baseExtPathInfo.IsDir() {
+        log.Fatalln(base, "is not a dir!")
+    }
+}
+
+func writeWriting(website Website, writing Writing, outputPath string, template *template.Template) {
+    outputWritingPath := filepath.Join(outputPath, writing.Url())
+    fmt.Println("output writing:", outputWritingPath)
+    outputWriting, err := os.Create(outputWritingPath)
+    defer outputWriting.Close()
+    if err != nil {
+        log.Fatalln(err)
+    }
+    if err := template.Execute(outputWriting, WritingContext{writing, website}); err != nil {
+        log.Fatalln(err)
+    }
+    fmt.Println(writing)
 }
 
 func Build(base string) {
     //to output
     outputDirPath := "output"
-    postsOutputDirPath := filepath.Join(outputDirPath, "posts")
-    if outputDirInfo, err := os.Stat(outputDirPath); os.IsNotExist(err) {
-        fmt.Println("Create", outputDirPath)
-        if err := os.MkdirAll(outputDirPath, os.ModeDir); err != nil {
-            log.Fatalln(err)
-        }
-    } else if !outputDirInfo.IsDir() {
-        log.Fatalln(outputDirPath, "is not a dir!")
-    }
-    if err := os.MkdirAll(postsOutputDirPath, os.ModeDir); err != nil {
-        log.Fatalln(err)
-    }
+    mkdir(outputDirPath, "posts")
+    mkdir(outputDirPath, "pages")
     content := manager.OpenContent(base)
     fmt.Println(content)
     posts := content.GetPosts()
+    pages := content.GetPages()
     fmt.Println(posts)
     // distribute posts (files) in pages
     const postsPerPage = 3
-    website := NewWebsite(postsPerPage, posts)
+    website := NewWebsite("MySite", postsPerPage, posts, pages)
     fmt.Println("website pages:", website.PostsPages())
     postTemplate, err := template.ParseFS(basicTemplates, "templates/*.tmpl")
     if err != nil {
@@ -72,21 +89,11 @@ func Build(base string) {
         if err != nil {
             log.Fatalln(err)
         }
-        if err := postTemplate.Execute(outputFile, PageContext{page, website}); err != nil {
+        if err := postTemplate.Execute(outputFile, PostsPageContext{page, website}); err != nil {
             log.Fatalln(err)
         }
         for _, writing := range page.Writings() {
-            outputWritingPath := filepath.Join(outputDirPath, writing.Url())
-            fmt.Println("output writing:", outputWritingPath)
-            outputWriting, err := os.Create(outputWritingPath)
-            defer outputWriting.Close()
-            if err != nil {
-                log.Fatalln(err)
-            }
-            if err := writingTemplate.Execute(outputWriting, WritingContext{writing, website}); err != nil {
-                log.Fatalln(err)
-            }
-            fmt.Println(writing)
+            writeWriting(website, writing, outputDirPath, writingTemplate)
         }
     }
 }

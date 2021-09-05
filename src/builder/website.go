@@ -9,7 +9,8 @@ import (
 //Website represents a website with its posts PostsPage and PostsPage.
 type Website struct {
     postsPages PostsPages
-
+    pages []Writing
+    title string
 }
 
 //PostsPages returns its PostsPages.
@@ -17,8 +18,17 @@ func (w Website) PostsPages() PostsPages {
     return w.postsPages
 }
 
+//Pages returns its Pages.
+func (w Website) Pages() []Writing {
+    return w.pages
+}
+
+func (w Website) Title() string {
+    return w.title
+}
+
 //NewWebsite returns info about the website.
-func NewWebsite(postsPerPage int, posts []manager.Post) Website {
+func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []manager.Page) Website {
     nPages := len(posts) / postsPerPage
     postsExtraPage := len(posts) % postsPerPage
     extraPage := postsExtraPage > 0
@@ -49,5 +59,10 @@ func NewWebsite(postsPerPage int, posts []manager.Post) Website {
         }
     }
     fmt.Println("nPages:", nPages, ";extraPage:", extraPage)
-    return Website{postsPages}
+    nUserPages := len(pages) // no posts pages
+    userPages := make([]Writing, nUserPages)
+    for i := 0; i < nUserPages; i++ {
+        userPages[i] = NewWriting(&(pages[i]), "pages")
+    }
+    return Website{postsPages, userPages, title}
 }

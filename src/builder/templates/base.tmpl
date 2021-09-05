@@ -3,9 +3,19 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ .Website.Title }}</title>
     </head>
     <body>
-        <h1>Site</h1>
+        <header>
+            <h1><a href="/">{{ .Website.Title }}</a></h1>
+            <nav id="pages">
+                <ul>
+                    {{ range .Website.Pages }}
+                    <li><a href="{{ .Url }}">{{ .RenderHeader }}</a></li>
+                    {{ end }}
+                </ul>
+            </nav>
+        </header>
         {{ block "body" . }}
         {{ end }}
     </body>
