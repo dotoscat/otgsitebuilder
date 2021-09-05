@@ -17,7 +17,7 @@ var basicTemplates embed.FS
 
 //go:embed templates/base.tmpl
 //go:embed templates/writing.tmpl
-var writingTemplate embed.FS
+var writingTemplates embed.FS
 
 type WritingContext struct {
     Writing Writing
@@ -43,16 +43,19 @@ func mkdir(base, ext string) {
 
 func writeWriting(website Website, writing Writing, outputPath string, template *template.Template) {
     outputWritingPath := filepath.Join(outputPath, writing.Url())
-    fmt.Println("output writing:", outputWritingPath)
+    fmt.Println("output writing path:", outputWritingPath)
+    fmt.Println("output writing:", writing)
     outputWriting, err := os.Create(outputWritingPath)
     defer outputWriting.Close()
+    fmt.Println("Defer close")
     if err != nil {
-        log.Fatalln(err)
+        log.Fatalln("output writing err:", err)
     }
+    fmt.Println("Template execute:", *template, writing, *outputWriting)
     if err := template.Execute(outputWriting, WritingContext{writing, website}); err != nil {
-        log.Fatalln(err)
+        log.Fatalln("output writing template err:", err)
     }
-    fmt.Println(writing)
+    fmt.Println("done writing:", writing)
 }
 
 func Build(base string) {
@@ -73,7 +76,7 @@ func Build(base string) {
     if err != nil {
         log.Fatalln(err)
     }
-    writingTemplate, err := template.ParseFS(writingTemplate, "templates/*.tmpl")
+    writingTemplate, err := template.ParseFS(writingTemplates, "templates/*.tmpl")
     if err != nil {
         log.Fatalln(err)
     }
@@ -96,4 +99,12 @@ func Build(base string) {
             writeWriting(website, writing, outputDirPath, writingTemplate)
         }
     }
+    fmt.Println("RENDER PAGES")
+    fmt.Println("pages:", website.Pages())
+    for _, writing := range website.Pages() {
+        fmt.Println("Render page url:", writing.Url(), outputDirPath)
+        writeWriting(website, writing, outputDirPath, writingTemplate)
+    }
+    fmt.Println("DONE")
+    // render user pages, no posts pages
 }

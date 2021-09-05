@@ -30,6 +30,7 @@ func (w Writing) RenderHeader() string {
 //RenderContent returns HTML from a markdown format writing
 func (w Writing) RenderContent() string{
     var content string
+    fmt.Println("Render content:", w.Path())
     if source, err := os.ReadFile(w.Path()); err != nil {
         log.Fatalln(err)
     } else {
