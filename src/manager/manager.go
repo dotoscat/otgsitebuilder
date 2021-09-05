@@ -28,6 +28,7 @@ var (
 
 type Filer interface { //Fil(l)er
     Fill(*sql.Row, string) error
+    FillFromRows(*sql.Rows, string) error
     Name() string
     Path() string
     Header() string
@@ -136,6 +137,15 @@ func (p Page) Header() string {
 
 func (p *Page) Fill(row *sql.Row, basePath string) error {
     err := row.Scan(&p.id, &p.name, &p.reference)
+    if err != nil {
+        return err
+    }
+    p.path = filepath.Join(basePath, p.name)
+    return err
+}
+
+func (p *Page) FillFromRows(rows *sql.Rows, basePath string) error {
+    err := rows.Scan(&p.id, &p.name, &p.reference)
     if err != nil {
         return err
     }

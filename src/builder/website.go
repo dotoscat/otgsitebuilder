@@ -6,14 +6,15 @@ import (
     "github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
-//Website represents a website with its posts pages and pages.
+//Website represents a website with its posts PostsPage and PostsPage.
 type Website struct {
-    pages Pages
+    postsPages PostsPages
+
 }
 
-//Pages returns its pages.
-func (w Website) Pages() Pages {
-    return w.pages
+//PostsPages returns its PostsPages.
+func (w Website) PostsPages() PostsPages {
+    return w.postsPages
 }
 
 //NewWebsite returns info about the website.
@@ -26,7 +27,7 @@ func NewWebsite(postsPerPage int, posts []manager.Post) Website {
     }
     var url string
     iPosts := 0
-    pages := make(Pages, nPages)
+    postsPages := make(PostsPages, nPages)
     for iPage := 0; iPage < nPages; iPage++ {
         var totalPosts int
         if iPage == nPages-1 && extraPage {
@@ -39,14 +40,14 @@ func NewWebsite(postsPerPage int, posts []manager.Post) Website {
         } else {
             url = fmt.Sprint("/index", iPage, ".html")
         }
-        newPage := Page{parent: &pages, index: iPage, url: url}
-        pages[iPage] = newPage
+        newPage := PostsPage{parent: &postsPages, index: iPage, url: url}
+        postsPages[iPage] = newPage
         for i := 0; i < totalPosts; i++ {
             writing := NewWriting(&(posts[iPosts]), "posts")
-            pages[iPage].addWriting(writing)
+            postsPages[iPage].addWriting(writing)
             iPosts++
         }
     }
     fmt.Println("nPages:", nPages, ";extraPage:", extraPage)
-    return Website{pages}
+    return Website{postsPages}
 }

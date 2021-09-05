@@ -25,7 +25,7 @@ type WritingContext struct {
 }
 
 type PageContext struct {
-    CurrentPage Page
+    CurrentPage PostsPage
     Website Website
 }
 
@@ -51,7 +51,7 @@ func Build(base string) {
     // distribute posts (files) in pages
     const postsPerPage = 3
     website := NewWebsite(postsPerPage, posts)
-    fmt.Println("website pages:", website.Pages())
+    fmt.Println("website pages:", website.PostsPages())
     postTemplate, err := template.ParseFS(basicTemplates, "templates/*.tmpl")
     if err != nil {
         log.Fatalln(err)
@@ -60,7 +60,7 @@ func Build(base string) {
     if err != nil {
         log.Fatalln(err)
     }
-    for i, page := range website.Pages() {
+    for i, page := range website.PostsPages() {
         var outputFilePath string
         if i == 0 {
             outputFilePath = filepath.Join(outputDirPath, "index.html")

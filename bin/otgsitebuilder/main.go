@@ -66,6 +66,7 @@ type FlagList struct {
     Content string
     Filename string
     Date DateValue
+    Reference string
 }
 
 func managePost(post manager.Post, flagList FlagList) {
