@@ -18,6 +18,7 @@ type Writing struct{
 
 //NewWriting constructs a Writing value with a baseUrl to be used along with the the manager.File Name
 func NewWriting(file manager.Filer, baseUrl string) Writing {
+    fmt.Println("base url:", baseUrl)
     url := fmt.Sprint(baseUrl, "/", strings.Replace(file.Name(), ".md", ".html", -1))
     return Writing{file, url}
 }
@@ -30,7 +31,6 @@ func (w Writing) RenderHeader() string {
 //RenderContent returns HTML from a markdown format writing
 func (w Writing) RenderContent() string{
     var content string
-    fmt.Println("Render content:", w.Path())
     if source, err := os.ReadFile(w.Path()); err != nil {
         log.Fatalln(err)
     } else {

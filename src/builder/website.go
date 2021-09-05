@@ -62,7 +62,7 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
     nUserPages := len(pages) // no posts pages
     userPages := make([]Writing, nUserPages)
     for i := 0; i < nUserPages; i++ {
-        userPages[i] = NewWriting(&(pages[i]), "pages")
+        userPages[i] = NewWriting(&(pages[i]), "/pages")
     }
     return Website{postsPages, userPages, title}
 }
