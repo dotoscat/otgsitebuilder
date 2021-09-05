@@ -121,8 +121,17 @@ type Page struct {
     reference string
 }
 
+func newPage(db *sql.DB) Page {
+    page := Page{}
+    page.setDB(db)
+    return page
+}
+
 func (p Page) Header() string {
-    return ""
+    if p.reference == "" {
+        return p.name
+    }
+    return p.reference
 }
 
 func (p *Page) Fill(row *sql.Row, basePath string) error {
@@ -172,8 +181,7 @@ func (c Content) getMetadata(recipient Filer, query string, values ...interface{
 
 func (c Content) GetPageMetadata(filename string) (Page, error) {
     const QUERY = "SELECT id, name, reference FROM Page WHERE name = ?"
-    page := Page{}
-    page.db = c.db
+    page := newPage(c.db)
     err := c.getMetadata(&page, QUERY, filename)
     return page, err
 }
@@ -256,6 +264,31 @@ func (c Content) GetPosts() []Post {
         post := newPost(c.db)
         post.FillFromRows(rows, c.postsPath)
         files = append(files, post)
+    }
+    return files
+}
+
+func (c Content) GetPages() []Page {
+    // Index all files if they are not indexed
+
+    entries, err := os.ReadDir(c.pagesPath)
+    if err != nil {
+        log.Fatalln(err)
+    }
+    for _, entry := range entries {
+        if entry.IsDir() {
+            continue
+        }
+        c.GetPageFile(entry.Name()) // This function indexes if the file is not indexed, ignore the return value
+    }
+    const QUERY = "SELECT id, name, reference FROM Page"
+    rows, err := c.db.Query(QUERY)
+    defer rows.Close()
+    files := make([]Page, 0)
+    for rows.Next() {
+        page := newPage(c.db)
+        page.FillFromRows(rows, c.postsPath)
+        files = append(files, page)
     }
     return files
 }
