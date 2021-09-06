@@ -78,6 +78,13 @@ func managePost(post manager.Post, flagList FlagList) {
     }
 }
 
+func managePage(page manager.Page, flagList FlagList) {
+    if flagList.Reference != "-1" {
+        fmt.Println("Set 'reference':", flagList.Reference)
+        page.SetReference(flagList.Reference)
+    }
+}
+
 func manageDatabase(flagList FlagList) {
     content := manager.OpenContent(flagList.Content)
     fmt.Println("content: ", content)
@@ -91,6 +98,7 @@ func manageDatabase(flagList FlagList) {
         log.Fatalln("Is not 'ErrNotExist'", err)
     } else if isPage {
         page := content.GetPageFile(flagList.Filename)
+        managePage(page, flagList)
         fmt.Println("page:", page)
     } else {
         fmt.Println(flagList.Filename, "does not exist in", flagList.Content)
@@ -102,6 +110,7 @@ func main() {
     flag.StringVar(&flagList.Mode, "mode", "", "Set the mode of use of this tool")
     flag.StringVar(&flagList.Content, "content", "", "The content to work with (a valid directory path)")
     flag.StringVar(&flagList.Filename, "filename", "", "A filename from the content")
+    flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
     flag.Parse()
     if len(flagList.Content) == 0 {

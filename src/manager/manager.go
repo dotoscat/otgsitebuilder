@@ -129,6 +129,22 @@ func newPage(db *sql.DB) Page {
     return page
 }
 
+func (p *Page) SetReference(reference string) error {
+    if !p.IsValid() {
+        return ErrNoValid
+    }
+    const QUERY = "UPDATE Page SET reference = ? WHERE id = ?"
+    result, err := p.db.Exec(QUERY, reference, p.id);
+    n, _ := result.RowsAffected()
+    if err != nil {
+        log.Fatalln(err)
+    }
+    if n > 0 {
+        p.reference = reference
+    }
+    return err
+}
+
 func (p Page) Header() string {
     if p.reference == "" {
         return strings.Replace(p.name, ".md", "", 1)
