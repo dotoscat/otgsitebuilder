@@ -8,6 +8,7 @@ import (
     "database/sql"
     "os"
     "errors"
+    "strings"
     _ "embed"
 
     _ "github.com/mattn/go-sqlite3"
@@ -130,7 +131,7 @@ func newPage(db *sql.DB) Page {
 
 func (p Page) Header() string {
     if p.reference == "" {
-        return p.name
+        return strings.Replace(p.name, ".md", "", 1)
     }
     return p.reference
 }
