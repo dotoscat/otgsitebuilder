@@ -67,6 +67,7 @@ type FlagList struct {
     Filename string
     Date DateValue
     Reference string
+    RemoveReference bool
 }
 
 func managePost(post manager.Post, flagList FlagList) {
@@ -79,7 +80,9 @@ func managePost(post manager.Post, flagList FlagList) {
 }
 
 func managePage(page manager.Page, flagList FlagList) {
-    if flagList.Reference != "-1" {
+    if flagList.RemoveReference {
+        page.SetReference("")
+    } else if flagList.Reference != "-1" {
         fmt.Println("Set 'reference':", flagList.Reference)
         page.SetReference(flagList.Reference)
     }
@@ -111,6 +114,7 @@ func main() {
     flag.StringVar(&flagList.Content, "content", "", "The content to work with (a valid directory path)")
     flag.StringVar(&flagList.Filename, "filename", "", "A filename from the content")
     flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
+    flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
     flag.Parse()
     if len(flagList.Content) == 0 {
