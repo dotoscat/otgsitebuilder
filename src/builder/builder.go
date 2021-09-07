@@ -6,7 +6,9 @@ import (
     "path/filepath"
     "os"
     "log"
+    "io/fs"
     "text/template"
+    "strings"
 
     "github.com/dotoscat/otgsitebuilder/src/manager"
 )
@@ -41,6 +43,41 @@ func mkdir(base, ext string) {
     }
 }
 
+func copyFile(src, dst string) {
+    content, err := os.ReadFile(src)
+    if err != nil {
+        log.Fatalln("(read file)", err)
+    }
+    if err := os.WriteFile(dst, content, os.ModePerm); err != nil {
+        log.Fatalln("(write file)", err)
+    }
+}
+
+func copyDir(src, dst string) {
+
+    _dirWalker := func (path string, d fs.DirEntry, err error) error {
+        if path == src {
+            return nil
+        }
+        cleanedPath := strings.TrimPrefix(path, src)
+        dstPath := filepath.Join(dst, cleanedPath)
+
+        fmt.Println("path:", path, err, "; to dst:", cleanedPath, dstPath)
+        if d.IsDir() {
+            if err := os.MkdirAll(dstPath, os.ModeDir); err != nil {
+                log.Fatalln(err)
+            }
+        } else {
+            copyFile(path, dstPath)
+        }
+        return nil
+    }
+
+    err := filepath.WalkDir(src, _dirWalker)
+    fmt.Println("End walking", src, err)
+
+}
+
 func writeWriting(website Website, writing Writing, outputPath string, template *template.Template) {
     outputWritingPath := filepath.Join(outputPath, writing.Url())
     fmt.Println("output writing path:", outputWritingPath)
@@ -61,8 +98,10 @@ func writeWriting(website Website, writing Writing, outputPath string, template 
 func Build(base string) {
     //to output
     outputDirPath := "output"
+    staticDirPath := filepath.Join(outputDirPath, "static")
     mkdir(outputDirPath, "posts")
     mkdir(outputDirPath, "pages")
+    mkdir(outputDirPath, "static")
     content := manager.OpenContent(base)
     fmt.Println(content)
     posts := content.GetPosts()
@@ -106,5 +145,6 @@ func Build(base string) {
         writeWriting(website, writing, outputDirPath, writingTemplate)
     }
     fmt.Println("DONE")
+    copyDir(filepath.Join(base, "static"), staticDirPath)
     // render user pages, no posts pages
 }

@@ -12,6 +12,7 @@ page.tmpl
 
 ** TODO
 
-[ ] Pages (no posts pages)
-[ ] Pages, keep file and add a reference
-[ ] Posts
+[x] Pages (no posts pages)
+[x] Pages, keep file and add a reference
+[x] Posts
+[ ] static folder, only copy recursively
