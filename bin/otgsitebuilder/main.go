@@ -10,6 +10,8 @@ import (
     "strings"
     "time"
     "strconv"
+    "path/filepath"
+    "text/template"
 
     "github.com/dotoscat/otgsitebuilder/src/manager"
     "github.com/dotoscat/otgsitebuilder/src/builder"
@@ -68,6 +70,7 @@ type FlagList struct {
     Date DateValue
     Reference string
     RemoveReference bool
+    Theme string
 }
 
 func managePost(post manager.Post, flagList FlagList) {
@@ -108,12 +111,67 @@ func manageDatabase(flagList FlagList) {
     }
 }
 
+func build(base string, flags FlagList) {
+    //to output
+    outputDirPath := "output"
+    staticDirPath := filepath.Join(outputDirPath, "static")
+    builder.Mkdir(outputDirPath, "posts")
+    builder.Mkdir(outputDirPath, "pages")
+    builder.Mkdir(outputDirPath, "static")
+    content := manager.OpenContent(base)
+    fmt.Println(content)
+    posts := content.GetPosts()
+    pages := content.GetPages()
+    fmt.Println(posts)
+    // distribute posts (files) in pages
+    const postsPerPage = 3
+    website := builder.NewWebsite("MySite", postsPerPage, posts, pages)
+    fmt.Println("website pages:", website.PostsPages())
+    postTemplate, err := template.ParseFS(builder.BasicTemplates, "templates/*.tmpl")
+    if err != nil {
+        log.Fatalln(err)
+    }
+    writingTemplate, err := template.ParseFS(builder.WritingTemplates, "templates/*.tmpl")
+    if err != nil {
+        log.Fatalln(err)
+    }
+    for i, page := range website.PostsPages() {
+        var outputFilePath string
+        if i == 0 {
+            outputFilePath = filepath.Join(outputDirPath, "index.html")
+        } else {
+            outputFilePath = filepath.Join(outputDirPath, fmt.Sprint("index", i, ".html"))
+        }
+        outputFile, err := os.Create(outputFilePath)
+        defer outputFile.Close()
+        if err != nil {
+            log.Fatalln(err)
+        }
+        if err := postTemplate.Execute(outputFile, builder.PostsPageContext{page, website}); err != nil {
+            log.Fatalln(err)
+        }
+        for _, writing := range page.Writings() {
+            builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
+        }
+    }
+    fmt.Println("RENDER PAGES")
+    fmt.Println("pages:", website.Pages())
+    for _, writing := range website.Pages() {
+        fmt.Println("Render page url:", writing.Url(), outputDirPath)
+        builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
+    }
+    fmt.Println("DONE")
+    builder.CopyDir(filepath.Join(base, "static"), staticDirPath)
+    // render user pages, no posts pages
+}
+
 func main() {
     flagList := FlagList{}
     flag.StringVar(&flagList.Mode, "mode", "", "Set the mode of use of this tool")
     flag.StringVar(&flagList.Content, "content", "", "The content to work with (a valid directory path)")
     flag.StringVar(&flagList.Filename, "filename", "", "A filename from the content")
     flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
+    flag.StringVar(&flagList.Theme, "theme", "", "Set the theme (a style sheet) to use for building the site")
     flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
     flag.Parse()
@@ -132,7 +190,7 @@ func main() {
                 manageDatabase(flagList)
             }
         case BUILDER_MODE:
-            builder.Build(flagList.Content)
+            build(flagList.Content, flagList)
             fmt.Println("Builder mode")
         default:
             log.Fatalln("Specify '-mode' (manager or builder)")

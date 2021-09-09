@@ -11,6 +11,7 @@ type Website struct {
     postsPages PostsPages
     pages []Writing
     title string
+    style string
 }
 
 //PostsPages returns its PostsPages.
@@ -25,6 +26,10 @@ func (w Website) Pages() []Writing {
 
 func (w Website) Title() string {
     return w.title
+}
+
+func (w Website) Style() string {
+    return w.style
 }
 
 //NewWebsite returns info about the website.
@@ -64,5 +69,5 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
     for i := 0; i < nUserPages; i++ {
         userPages[i] = NewWriting(&(pages[i]), "/pages")
     }
-    return Website{postsPages, userPages, title}
+    return Website{postsPages, userPages, title, ""}
 }

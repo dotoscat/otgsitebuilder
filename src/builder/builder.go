@@ -9,17 +9,15 @@ import (
     "io/fs"
     "text/template"
     "strings"
-
-    "github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
 //go:embed templates/base.tmpl
 //go:embed templates/postspage.tmpl
-var basicTemplates embed.FS
+var BasicTemplates embed.FS
 
 //go:embed templates/base.tmpl
 //go:embed templates/writing.tmpl
-var writingTemplates embed.FS
+var WritingTemplates embed.FS
 
 type WritingContext struct {
     Writing Writing
@@ -31,7 +29,7 @@ type PostsPageContext struct {
     Website Website
 }
 
-func mkdir(base, ext string) {
+func Mkdir(base, ext string) {
     baseExtPath := filepath.Join(base, ext)
     if baseExtPathInfo, err := os.Stat(baseExtPath); os.IsNotExist(err) {
         fmt.Println("Create", baseExtPath)
@@ -43,7 +41,7 @@ func mkdir(base, ext string) {
     }
 }
 
-func copyFile(src, dst string) {
+func CopyFile(src, dst string) {
     content, err := os.ReadFile(src)
     if err != nil {
         log.Fatalln("(read file)", err)
@@ -53,7 +51,7 @@ func copyFile(src, dst string) {
     }
 }
 
-func copyDir(src, dst string) {
+func CopyDir(src, dst string) {
 
     _dirWalker := func (path string, d fs.DirEntry, err error) error {
         if path == src {
@@ -68,7 +66,7 @@ func copyDir(src, dst string) {
                 log.Fatalln(err)
             }
         } else {
-            copyFile(path, dstPath)
+            CopyFile(path, dstPath)
         }
         return nil
     }
@@ -78,7 +76,7 @@ func copyDir(src, dst string) {
 
 }
 
-func writeWriting(website Website, writing Writing, outputPath string, template *template.Template) {
+func WriteWriting(website Website, writing Writing, outputPath string, template *template.Template) {
     outputWritingPath := filepath.Join(outputPath, writing.Url())
     fmt.Println("output writing path:", outputWritingPath)
     fmt.Println("output writing:", writing)
@@ -93,58 +91,4 @@ func writeWriting(website Website, writing Writing, outputPath string, template 
         log.Fatalln("output writing template err:", err)
     }
     fmt.Println("done writing:", writing)
-}
-
-func Build(base string) {
-    //to output
-    outputDirPath := "output"
-    staticDirPath := filepath.Join(outputDirPath, "static")
-    mkdir(outputDirPath, "posts")
-    mkdir(outputDirPath, "pages")
-    mkdir(outputDirPath, "static")
-    content := manager.OpenContent(base)
-    fmt.Println(content)
-    posts := content.GetPosts()
-    pages := content.GetPages()
-    fmt.Println(posts)
-    // distribute posts (files) in pages
-    const postsPerPage = 3
-    website := NewWebsite("MySite", postsPerPage, posts, pages)
-    fmt.Println("website pages:", website.PostsPages())
-    postTemplate, err := template.ParseFS(basicTemplates, "templates/*.tmpl")
-    if err != nil {
-        log.Fatalln(err)
-    }
-    writingTemplate, err := template.ParseFS(writingTemplates, "templates/*.tmpl")
-    if err != nil {
-        log.Fatalln(err)
-    }
-    for i, page := range website.PostsPages() {
-        var outputFilePath string
-        if i == 0 {
-            outputFilePath = filepath.Join(outputDirPath, "index.html")
-        } else {
-            outputFilePath = filepath.Join(outputDirPath, fmt.Sprint("index", i, ".html"))
-        }
-        outputFile, err := os.Create(outputFilePath)
-        defer outputFile.Close()
-        if err != nil {
-            log.Fatalln(err)
-        }
-        if err := postTemplate.Execute(outputFile, PostsPageContext{page, website}); err != nil {
-            log.Fatalln(err)
-        }
-        for _, writing := range page.Writings() {
-            writeWriting(website, writing, outputDirPath, writingTemplate)
-        }
-    }
-    fmt.Println("RENDER PAGES")
-    fmt.Println("pages:", website.Pages())
-    for _, writing := range website.Pages() {
-        fmt.Println("Render page url:", writing.Url(), outputDirPath)
-        writeWriting(website, writing, outputDirPath, writingTemplate)
-    }
-    fmt.Println("DONE")
-    copyDir(filepath.Join(base, "static"), staticDirPath)
-    // render user pages, no posts pages
 }
