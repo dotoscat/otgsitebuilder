@@ -28,6 +28,10 @@ func (w Website) Title() string {
     return w.title
 }
 
+func (w *Website) SetStyle(style string) {
+    w.style = style
+}
+
 func (w Website) Style() string {
     return w.style
 }

@@ -71,6 +71,7 @@ type FlagList struct {
     Reference string
     RemoveReference bool
     Theme string
+    Title string
 }
 
 func managePost(post manager.Post, flagList FlagList) {
@@ -112,16 +113,6 @@ func manageDatabase(flagList FlagList) {
 }
 
 func build(base string, flags FlagList) {
-    themePath := flags.Theme
-    fmt.Println("Theme", themePath)
-    switch {
-        case flags.Theme == "":
-            log.Fatalln("'-theme' is empty for the builder")
-        case fs.ValidPath(themePath) == false:
-            log.Fatalln(themePath, "is not a valid path!")
-        case strings.HasSuffix(themePath, ".css") == false:
-            log.Fatalln(flags.Theme, "is not a valid css")
-    }
     //to output
     outputDirPath := "output"
     staticDirPath := filepath.Join(outputDirPath, "static")
@@ -129,7 +120,15 @@ func build(base string, flags FlagList) {
     builder.Mkdir(outputDirPath, "pages")
     builder.Mkdir(outputDirPath, "static")
 
-    builder.CopyFile(themePath, filepath.Join(outputDirPath, filepath.Base(themePath)))
+    if flags.Theme != "" {
+        switch {
+        case fs.ValidPath(themePath) == false:
+            log.Fatalln(themePath, "is not a valid path!")
+        case strings.HasSuffix(themePath, ".css") == false:
+            log.Fatalln(flags.Theme, "is not a valid css")
+        }
+        builder.CopyFile(themePath, filepath.Join(outputDirPath, filepath.Base(themePath)))
+    }
 
     content := manager.OpenContent(base)
     fmt.Println(content)
@@ -138,7 +137,8 @@ func build(base string, flags FlagList) {
     fmt.Println(posts)
     // distribute posts (files) in pages
     const postsPerPage = 3
-    website := builder.NewWebsite("MySite", postsPerPage, posts, pages)
+    website := builder.NewWebsite(flags.Title, postsPerPage, posts, pages)
+    website.SetStyle(filepath.Join("/", filepath.Base(themePath)))
     fmt.Println("website pages:", website.PostsPages())
     postTemplate, err := template.ParseFS(builder.BasicTemplates, "templates/*.tmpl")
     if err != nil {
@@ -185,6 +185,7 @@ func main() {
     flag.StringVar(&flagList.Filename, "filename", "", "A filename from the content")
     flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
     flag.StringVar(&flagList.Theme, "theme", "", "Set the theme (a style sheet) to use for building the site")
+    flag.StringVar(&flagList.Title, "title", "My Site", "Set the title to use for building the site")
     flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
     flag.Parse()
