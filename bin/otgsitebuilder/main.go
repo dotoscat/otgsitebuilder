@@ -122,12 +122,12 @@ func build(base string, flags FlagList) {
 
     if flags.Theme != "" {
         switch {
-        case fs.ValidPath(themePath) == false:
-            log.Fatalln(themePath, "is not a valid path!")
-        case strings.HasSuffix(themePath, ".css") == false:
+        case fs.ValidPath(flags.Theme) == false:
+            log.Fatalln(flags.Theme, "is not a valid path!")
+        case strings.HasSuffix(flags.Theme, ".css") == false:
             log.Fatalln(flags.Theme, "is not a valid css")
         }
-        builder.CopyFile(themePath, filepath.Join(outputDirPath, filepath.Base(themePath)))
+        builder.CopyFile(flags.Theme, filepath.Join(outputDirPath, filepath.Base(flags.Theme)))
     }
 
     content := manager.OpenContent(base)
@@ -138,7 +138,7 @@ func build(base string, flags FlagList) {
     // distribute posts (files) in pages
     const postsPerPage = 3
     website := builder.NewWebsite(flags.Title, postsPerPage, posts, pages)
-    website.SetStyle(filepath.Join("/", filepath.Base(themePath)))
+    website.SetStyle(filepath.Join("/", filepath.Base(flags.Theme)))
     fmt.Println("website pages:", website.PostsPages())
     postTemplate, err := template.ParseFS(builder.BasicTemplates, "templates/*.tmpl")
     if err != nil {
