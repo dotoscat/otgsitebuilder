@@ -112,12 +112,25 @@ func manageDatabase(flagList FlagList) {
 }
 
 func build(base string, flags FlagList) {
+    themePath := flags.Theme
+    fmt.Println("Theme", themePath)
+    switch {
+        case flags.Theme == "":
+            log.Fatalln("'-theme' is empty for the builder")
+        case fs.ValidPath(themePath) == false:
+            log.Fatalln(themePath, "is not a valid path!")
+        case strings.HasSuffix(themePath, ".css") == false:
+            log.Fatalln(flags.Theme, "is not a valid css")
+    }
     //to output
     outputDirPath := "output"
     staticDirPath := filepath.Join(outputDirPath, "static")
     builder.Mkdir(outputDirPath, "posts")
     builder.Mkdir(outputDirPath, "pages")
     builder.Mkdir(outputDirPath, "static")
+
+    builder.CopyFile(themePath, filepath.Join(outputDirPath, filepath.Base(themePath)))
+
     content := manager.OpenContent(base)
     fmt.Println(content)
     posts := content.GetPosts()
