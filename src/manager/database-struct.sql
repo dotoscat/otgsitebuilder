@@ -26,3 +26,9 @@ CREATE TABLE IF NOT EXISTS Post (
     date DATE          NOT NULL
                        DEFAULT (CURRENT_DATE)
 );
+
+CREATE TABLE IF NOT EXISTS Option (
+    title           VARCHAR (255)   DEFAULT "My Site",
+    posts_per_page  INTEGER         DEFAULT 3,
+    output          VARCHAR (255)   DEFAULT "output"
+);

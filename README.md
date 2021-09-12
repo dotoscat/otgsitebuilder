@@ -15,4 +15,9 @@ page.tmpl
 [x] Pages (no posts pages)
 [x] Pages, keep file and add a reference
 [x] Posts
-[ ] static folder, only copy recursively
+[x] static folder, only copy recursively
+[ ] Store options suchs as number of pages, title and output path
+[ ] Add the Set interface
+[ ] Categories
+[ ] Tags
+[ ] End to comments functions and types

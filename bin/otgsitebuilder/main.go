@@ -77,6 +77,7 @@ func (dv DateValue) IsRequested() bool {
     return dv.requested
 }
 
+//FlagList stores the flags to be passed to different functions
 type FlagList struct {
     Mode string
     Content string
@@ -86,6 +87,7 @@ type FlagList struct {
     RemoveReference bool
     Theme string
     Title string
+    PostsPerPage int
 }
 
 func managePost(post manager.Post, flagList FlagList) {
@@ -106,9 +108,20 @@ func managePage(page manager.Page, flagList FlagList) {
     }
 }
 
+//manageDatabase is the main point entry to manage the metadata (database)
 func manageDatabase(flagList FlagList) {
     content := manager.OpenContent(flagList.Content)
-    fmt.Println("content: ", content)
+    // fmt.Println("content: ", content)
+    if flagList.PostsPerPage > 0 {
+        fmt.Println("Set posts per page:", flagList.PostsPerPage)
+        if err := content.SetPostsPerPage(flagList.PostsPerPage); err != nil {
+            log.Fatalln(err)
+        }
+    }
+    if flagList.Filename == "" {
+        fmt.Println("Posts per page:", content.PostsPerPage())
+        return
+    }
     if isPost, err := content.CheckInPostsFolder(flagList.Filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
         log.Fatalln("Is not 'ErrNotExist'", err)
     } else if isPost {
@@ -200,6 +213,7 @@ func main() {
     flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
     flag.StringVar(&flagList.Theme, "theme", "", "Set the theme (a style sheet) to use for building the site")
     flag.StringVar(&flagList.Title, "title", "My Site", "Set the title to use for building the site")
+    flag.IntVar(&flagList.PostsPerPage, "posts-per-page", -1, "Set the posts per page for building the site")
     flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
     flag.Parse()
@@ -214,9 +228,7 @@ func main() {
     switch flagList.Mode {
         case MANAGER_MODE:
             fmt.Println("Manager mode")
-            if flagList.Filename != "" {
-                manageDatabase(flagList)
-            }
+            manageDatabase(flagList)
         case BUILDER_MODE:
             build(flagList.Content, flagList)
             fmt.Println("Builder mode")
@@ -224,5 +236,4 @@ func main() {
             log.Fatalln("Specify '-mode' (manager or builder)")
     }
     flag.PrintDefaults()
-    fmt.Println(flag.Arg(0), flag.Arg(1), flag.Arg(2))
 }
