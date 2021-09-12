@@ -20,16 +20,20 @@ import (
     //_ "github.com/mattn/go-sqlite3"
 )
 
+func (c Content) generateDefaultValues() {
+    const QUERY = "INSERT INTO Option DEFAULT VALUES"
+    if _, err := c.db.Exec(QUERY); err != nil {
+        log.Fatalln(err)
+    }
+}
+
 //SetPostsPerPage changes the posts por page when building a site
 func (c Content) SetPostsPerPage(ppp int) error {
     const QUERY = "UPDATE Option SET posts_per_page = ?"
     if result, err := c.db.Exec(QUERY, ppp); err != nil {
         return err
     } else if affected, _ := result.RowsAffected(); affected == 0 {
-        const QUERY = "INSERT INTO Option DEFAULT VALUES"
-        if _, err := c.db.Exec(QUERY); err != nil {
-            log.Fatalln(err)
-        }
+        c.generateDefaultValues()
         return c.SetPostsPerPage(ppp)
     }
     return nil
@@ -41,10 +45,7 @@ func (c Content) PostsPerPage() int64 {
     row := c.db.QueryRow(QUERY)
     var ppp int64
     if err := row.Scan(&ppp); err == sql.ErrNoRows {
-        const QUERY = "INSERT INTO Option DEFAULT VALUES"
-        if _, err := c.db.Exec(QUERY); err != nil {
-            log.Fatalln(err)
-        }
+        c.generateDefaultValues()
         return c.PostsPerPage()
     } else if err != nil {
             log.Fatalln(err)
