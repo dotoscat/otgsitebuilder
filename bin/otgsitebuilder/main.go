@@ -144,7 +144,9 @@ func manageDatabase(flagList FlagList) {
     }
 }
 
-func build(base string, flags FlagList) {
+// main entry for building a website
+func build(flags FlagList) {
+    base := flags.Content
     content := manager.OpenContent(base)
     fmt.Println(content)
     //to output
@@ -236,7 +238,7 @@ func main() {
             fmt.Println("Manager mode")
             manageDatabase(flagList)
         case BUILDER_MODE:
-            build(flagList.Content, flagList)
+            build(flagList)
             fmt.Println("Builder mode")
         default:
             log.Fatalln("Specify '-mode' (manager or builder)")
