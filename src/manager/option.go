@@ -27,7 +27,7 @@ func (c Content) generateDefaultValues() {
     }
 }
 
-//SetPostsPerPage changes the posts por page when building a site
+//SetPostsPerPage changes the posts for page when building a site
 func (c Content) SetPostsPerPage(ppp int) error {
     const QUERY = "UPDATE Option SET posts_per_page = ?"
     if result, err := c.db.Exec(QUERY, ppp); err != nil {
@@ -40,10 +40,10 @@ func (c Content) SetPostsPerPage(ppp int) error {
 }
 
 //PostsPerPage returns the number of posts por pages stored in metadata
-func (c Content) PostsPerPage() int64 {
+func (c Content) PostsPerPage() int {
     const QUERY = "SELECT posts_per_page FROM Option"
     row := c.db.QueryRow(QUERY)
-    var ppp int64
+    var ppp int
     if err := row.Scan(&ppp); err == sql.ErrNoRows {
         c.generateDefaultValues()
         return c.PostsPerPage()
@@ -51,4 +51,34 @@ func (c Content) PostsPerPage() int64 {
             log.Fatalln(err)
     }
     return ppp
+}
+
+//SetTitle changes the title of the website
+func (c Content) SetTitle(title string) error {
+    const QUERY = "UPDATE Option SET title = ?"
+    if result, err := c.db.Exec(QUERY, title); err != nil {
+        return err
+    } else if affected, _ := result.RowsAffected(); affected == 0 {
+        c.generateDefaultValues()
+        return c.SetTitle(title)
+    }
+    return nil
+}
+
+//Title returns the title stored
+func (c Content) Title() string {
+    const QUERY = "SELECT title FROM Option"
+    row := c.db.QueryRow(QUERY)
+    var title string
+    if err := row.Scan(&title); err == sql.ErrNoRows {
+        c.generateDefaultValues()
+        return c.Title()
+    } else if err != nil {
+            log.Fatalln(err)
+    }
+    return title
+}
+
+func (c Content) Output() string {
+    return "output"
 }

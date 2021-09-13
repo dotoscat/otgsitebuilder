@@ -118,6 +118,11 @@ func manageDatabase(flagList FlagList) {
             log.Fatalln(err)
         }
     }
+    if flagList.Title != "" {
+        content.SetTitle(flagList.Title)
+    } else {
+        fmt.Println("Title:", content.Title())
+    }
     if flagList.Filename == "" {
         fmt.Println("Posts per page:", content.PostsPerPage())
         return
@@ -140,8 +145,10 @@ func manageDatabase(flagList FlagList) {
 }
 
 func build(base string, flags FlagList) {
+    content := manager.OpenContent(base)
+    fmt.Println(content)
     //to output
-    outputDirPath := "output"
+    outputDirPath := content.Output()
     staticDirPath := filepath.Join(outputDirPath, "static")
     builder.Mkdir(outputDirPath, "posts")
     builder.Mkdir(outputDirPath, "pages")
@@ -157,14 +164,11 @@ func build(base string, flags FlagList) {
         builder.CopyFile(flags.Theme, filepath.Join(outputDirPath, filepath.Base(flags.Theme)))
     }
 
-    content := manager.OpenContent(base)
-    fmt.Println(content)
+
     posts := content.GetPosts()
     pages := content.GetPages()
     fmt.Println(posts)
-    // distribute posts (files) in pages
-    const postsPerPage = 3
-    website := builder.NewWebsite(flags.Title, postsPerPage, posts, pages)
+    website := builder.NewWebsite(content.Title(), content.PostsPerPage(), posts, pages)
     website.SetStyle(filepath.Join("/", filepath.Base(flags.Theme)))
     fmt.Println("website pages:", website.PostsPages())
     postTemplate, err := template.ParseFS(builder.BasicTemplates, "templates/*.tmpl")
@@ -212,7 +216,7 @@ func main() {
     flag.StringVar(&flagList.Filename, "filename", "", "A filename from the content")
     flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
     flag.StringVar(&flagList.Theme, "theme", "", "Set the theme (a style sheet) to use for building the site")
-    flag.StringVar(&flagList.Title, "title", "My Site", "Set the title to use for building the site")
+    flag.StringVar(&flagList.Title, "title", "", "Set the title to use for building the site")
     flag.IntVar(&flagList.PostsPerPage, "posts-per-page", -1, "Set the posts per page for building the site")
     flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
