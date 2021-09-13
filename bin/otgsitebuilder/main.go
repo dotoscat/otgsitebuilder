@@ -36,16 +36,19 @@ const (
 	BUILDER_MODE = "builder"
 )
 
+//DataValue is special flag to handle time
 type DateValue struct {
 	time      time.Time
 	requested bool
 }
 
+//String returns the date as a string in year-month-day format
 func (dv DateValue) String() string {
 	year, month, day := dv.time.Date()
 	return fmt.Sprintf("%v-%02v-%02v", year, int(month), day)
 }
 
+//Set is used internally by the standard flag package
 func (dv *DateValue) Set(value string) error {
 	if len(value) == 0 {
 		dv.requested = false
@@ -73,6 +76,7 @@ func (dv *DateValue) Set(value string) error {
 	return nil
 }
 
+//IsRequested returns a boolean if this flag is provided as a parameter
 func (dv DateValue) IsRequested() bool {
 	return dv.requested
 }
@@ -91,6 +95,7 @@ type FlagList struct {
 	Output          string
 }
 
+//managePost is the main point entry to manage a post
 func managePost(post manager.Post, flagList FlagList) {
 	if flagList.Date.IsRequested() {
 		fmt.Println("date is request for post:", post, "===")
@@ -100,6 +105,7 @@ func managePost(post manager.Post, flagList FlagList) {
 	}
 }
 
+//managePost is the main point entry to manage a page
 func managePage(page manager.Page, flagList FlagList) {
 	if flagList.RemoveReference {
 		page.SetReference("")
