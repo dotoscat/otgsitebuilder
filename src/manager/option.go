@@ -17,7 +17,7 @@ package manager
 import (
     "log"
     "database/sql"
-    //_ "github.com/mattn/go-sqlite3"
+    "io/fs"
 )
 
 func (c Content) generateDefaultValues() {
@@ -79,6 +79,30 @@ func (c Content) Title() string {
     return title
 }
 
-func (c Content) Output() string {
-    return "output"
+//SetOutput changes the title of the website
+func (c Content) SetOutput(output string) error {
+    if fs.ValidPath(output) == false {
+        return ErrNoValid
+    }
+    const QUERY = "UPDATE Option SET output = ?"
+    if result, err := c.db.Exec(QUERY, output); err != nil {
+        return err
+    } else if affected, _ := result.RowsAffected(); affected == 0 {
+        c.generateDefaultValues()
+        return c.SetOutput(output)
+    }
+    return nil
+}
+
+//Output returns the output path where the website is builded
+func (c Content) Output() (output string) {
+    const QUERY = "SELECT output FROM Option"
+    row := c.db.QueryRow(QUERY)
+    if err := row.Scan(&output); err == sql.ErrNoRows {
+        c.generateDefaultValues()
+        return c.Output()
+    } else if err != nil {
+            log.Fatalln(err)
+    }
+    return
 }

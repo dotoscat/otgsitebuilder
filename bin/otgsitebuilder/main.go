@@ -88,6 +88,7 @@ type FlagList struct {
     Theme string
     Title string
     PostsPerPage int
+    Output string
 }
 
 func managePost(post manager.Post, flagList FlagList) {
@@ -117,14 +118,22 @@ func manageDatabase(flagList FlagList) {
         if err := content.SetPostsPerPage(flagList.PostsPerPage); err != nil {
             log.Fatalln(err)
         }
+    } else {
+        fmt.Println("Posts per page:", content.PostsPerPage())
     }
     if flagList.Title != "" {
         content.SetTitle(flagList.Title)
     } else {
         fmt.Println("Title:", content.Title())
     }
+    if flagList.Output != "" {
+        if err := content.SetOutput(flagList.Output); err != nil {
+            log.Fatalln(err)
+        }
+    } else {
+        fmt.Println("Output:", content.Output())
+    }
     if flagList.Filename == "" {
-        fmt.Println("Posts per page:", content.PostsPerPage())
         return
     }
     if isPost, err := content.CheckInPostsFolder(flagList.Filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
@@ -165,7 +174,6 @@ func build(flags FlagList) {
         }
         builder.CopyFile(flags.Theme, filepath.Join(outputDirPath, filepath.Base(flags.Theme)))
     }
-
 
     posts := content.GetPosts()
     pages := content.GetPages()
@@ -221,6 +229,7 @@ func main() {
     flag.StringVar(&flagList.Reference, "reference", "-1", "Set a reference for a page instead its name")
     flag.StringVar(&flagList.Theme, "theme", "", "Set the theme (a style sheet) to use for building the site")
     flag.StringVar(&flagList.Title, "title", "", "Set the title to use for building the site")
+    flag.StringVar(&flagList.Output, "output", "", "Set the output of the build process")
     flag.IntVar(&flagList.PostsPerPage, "posts-per-page", -1, "Set the posts per page for building the site")
     flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
     flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
