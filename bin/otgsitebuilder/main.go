@@ -169,7 +169,9 @@ func build(base string, flags FlagList) {
     pages := content.GetPages()
     fmt.Println(posts)
     website := builder.NewWebsite(content.Title(), content.PostsPerPage(), posts, pages)
-    website.SetStyle(filepath.Join("/", filepath.Base(flags.Theme)))
+    if flags.Theme != "" {
+        website.SetStyle(filepath.Join("/", filepath.Base(flags.Theme)))
+    }
     fmt.Println("website pages:", website.PostsPages())
     postTemplate, err := template.ParseFS(builder.BasicTemplates, "templates/*.tmpl")
     if err != nil {

@@ -50,6 +50,10 @@ func (w Website) Style() string {
     return w.style
 }
 
+func (w Website) HasStyle() bool {
+    return w.style != ""
+}
+
 //NewWebsite returns info about the website.
 func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []manager.Page) Website {
     nPages := len(posts) / postsPerPage

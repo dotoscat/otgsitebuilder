@@ -3,7 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {{ if .Website.HasStyle }}
         <link href="{{ .Website.Style }}" rel="stylesheet">
+        {{ end }}
         <title>{{ .Website.Title }}</title>
     </head>
     <body>
