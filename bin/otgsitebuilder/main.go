@@ -89,17 +89,28 @@ type FlagList struct {
 	Date            DateValue
 	Reference       string
 	RemoveReference bool
+	RemoveCategory  bool
 	Theme           string
 	Title           string
 	PostsPerPage    int
 	Output          string
+	Category        string
 }
 
 //managePost is the main point entry to manage a post
-func managePost(post manager.Post, flagList FlagList) {
+func managePost(post manager.Post, flagList FlagList, content manager.Content) {
 	if flagList.Date.IsRequested() {
 		fmt.Println("date is request for post:", post, "===")
 		if err := post.SetDate(flagList.Date.String()); err != nil {
+			log.Fatalln(err)
+		}
+	}
+	if flagList.Category != "" && flagList.RemoveCategory == false {
+		if err := content.GetCategory().AddPostForElement(post, flagList.Category); err != nil {
+			log.Fatalln(err)
+		}
+	} else if flagList.Category != "" && flagList.RemoveCategory == true {
+		if err := content.GetCategory().RemovePostForElement(post, flagList.Category); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -146,7 +157,7 @@ func manageDatabase(flagList FlagList) {
 		log.Fatalln("Is not 'ErrNotExist'", err)
 	} else if isPost {
 		post := content.GetPostFile(flagList.Filename)
-		managePost(post, flagList)
+		managePost(post, flagList, content)
 		fmt.Println("post:", post)
 	} else if isPage, err := content.CheckInPagesFolder(flagList.Filename); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		log.Fatalln("Is not 'ErrNotExist'", err)
@@ -236,8 +247,10 @@ func main() {
 	flag.StringVar(&flagList.Theme, "theme", "", "Set the theme (a style sheet) to use for building the site")
 	flag.StringVar(&flagList.Title, "title", "", "Set the title to use for building the site")
 	flag.StringVar(&flagList.Output, "output", "", "Set the output of the build process")
+	flag.StringVar(&flagList.Category, "category", "", "Set the category for a post")
 	flag.IntVar(&flagList.PostsPerPage, "posts-per-page", -1, "Set the posts per page for building the site")
 	flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
+	flag.BoolVar(&flagList.RemoveCategory, "remove-category", false, "Remove category for post")
 	flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
 	flag.Parse()
 	if len(flagList.Content) == 0 {

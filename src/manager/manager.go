@@ -199,6 +199,10 @@ func checkInFolder(path string) (bool, error) {
 	return true, nil
 }
 
+func (c Content) GetCategory() Set {
+	return newSet("Category", c.db)
+}
+
 func (c Content) CheckInPagesFolder(filename string) (bool, error) {
 	pagesFilePath := filepath.Join(c.pagesPath, filename)
 	return checkInFolder(pagesFilePath)

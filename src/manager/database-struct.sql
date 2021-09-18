@@ -32,3 +32,15 @@ CREATE TABLE IF NOT EXISTS Option (
     posts_per_page  INTEGER         DEFAULT 3,
     output          VARCHAR (255)   DEFAULT "output"
 );
+
+CREATE TABLE IF NOT EXISTS Category (
+    id   INTEGER       PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR (64)  UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS Category_Post (
+    category_id INT REFERENCES Category (id) ON DELETE CASCADE
+                    NOT NULL,
+    post_id     INT REFERENCES Post (id) ON DELETE CASCADE
+                    NOT NULL
+);
