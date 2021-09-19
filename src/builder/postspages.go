@@ -21,7 +21,7 @@ import (
 //PostsPages is defined type for a slice of PostsPage.
 type PostsPages []PostsPage
 
-func NewPostsPages(postsPerPage int, posts []Writing) PostsPages {
+func NewPostsPages(postsPerPage int, posts []Writing, base string) PostsPages {
 	nPages := len(posts) / postsPerPage
 	postsExtraPage := len(posts) % postsPerPage
 	extraPage := postsExtraPage > 0
@@ -39,9 +39,9 @@ func NewPostsPages(postsPerPage int, posts []Writing) PostsPages {
 			totalPosts = postsPerPage
 		}
 		if iPage == 0 {
-			url = "/index.html"
+			url = fmt.Sprintf("%v.html", base)
 		} else {
-			url = fmt.Sprint("/index", iPage, ".html")
+			url = fmt.Sprintf("/%v%v.html", base, iPage)
 		}
 		newPage := PostsPage{parent: &postsPages, index: iPage, url: url}
 		postsPages[iPage] = newPage
