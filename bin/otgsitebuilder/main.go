@@ -223,9 +223,10 @@ func build(flags FlagList) {
 		if err := postTemplate.Execute(outputFile, builder.PostsPageContext{page, website}); err != nil {
 			log.Fatalln(err)
 		}
-		for _, writing := range page.Writings() {
-			builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
-		}
+
+	}
+	for _, writing := range website.Posts() {
+		builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
 	}
 	fmt.Println("RENDER PAGES")
 	fmt.Println("pages:", website.Pages())

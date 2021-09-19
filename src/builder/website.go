@@ -40,6 +40,11 @@ func (w Website) Pages() []Writing {
 	return w.pages
 }
 
+//Posts returns all the posts
+func (w Website) Posts() []Writing {
+	return w.posts
+}
+
 func (w Website) Title() string {
 	return w.title
 }
