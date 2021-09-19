@@ -15,7 +15,7 @@
 package builder
 
 import (
-	"fmt"
+	// "fmt"
 
 	"github.com/dotoscat/otgsitebuilder/src/manager"
 )
@@ -23,9 +23,11 @@ import (
 //Website represents a website with its posts PostsPage and PostsPage.
 type Website struct {
 	postsPages PostsPages
+	posts      []Writing
 	pages      []Writing
-	title      string
-	style      string
+	// categories map[string][]Writing
+	title string
+	style string
 }
 
 //PostsPages returns its PostsPages.
@@ -56,40 +58,15 @@ func (w Website) HasStyle() bool {
 
 //NewWebsite returns info about the website.
 func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []manager.Page) Website {
-	nPages := len(posts) / postsPerPage
-	postsExtraPage := len(posts) % postsPerPage
-	extraPage := postsExtraPage > 0
-	if extraPage {
-		nPages++
+	postsWritings := make([]Writing, len(posts))
+	for i, post := range posts {
+		postsWritings[i] = NewWriting(&post, "posts")
 	}
-	var url string
-	iPosts := 0
-	postsPages := make(PostsPages, nPages)
-	for iPage := 0; iPage < nPages; iPage++ {
-		var totalPosts int
-		if iPage == nPages-1 && extraPage {
-			totalPosts = postsExtraPage
-		} else {
-			totalPosts = postsPerPage
-		}
-		if iPage == 0 {
-			url = "/index.html"
-		} else {
-			url = fmt.Sprint("/index", iPage, ".html")
-		}
-		newPage := PostsPage{parent: &postsPages, index: iPage, url: url}
-		postsPages[iPage] = newPage
-		for i := 0; i < totalPosts; i++ {
-			writing := NewWriting(&(posts[iPosts]), "posts")
-			postsPages[iPage].addWriting(writing)
-			iPosts++
-		}
+	postsPages := NewPostsPages(postsPerPage, postsWritings)
+	nWebsitePages := len(pages) // no posts pages
+	websitePages := make([]Writing, nWebsitePages)
+	for i := 0; i < nWebsitePages; i++ {
+		websitePages[i] = NewWriting(&(pages[i]), "/pages")
 	}
-	fmt.Println("nPages:", nPages, ";extraPage:", extraPage)
-	nUserPages := len(pages) // no posts pages
-	userPages := make([]Writing, nUserPages)
-	for i := 0; i < nUserPages; i++ {
-		userPages[i] = NewWriting(&(pages[i]), "/pages")
-	}
-	return Website{postsPages, userPages, title, ""}
+	return Website{postsPages, postsWritings, websitePages, title, ""}
 }

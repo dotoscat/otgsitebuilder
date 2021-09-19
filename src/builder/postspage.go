@@ -23,9 +23,6 @@ type PostsPage struct {
 	url      string
 }
 
-//PostsPages is defined type for a slice of PostsPage.
-type PostsPages []PostsPage
-
 //HasLast returns true if this is not the last PostsPage.
 func (p PostsPage) HasLast() bool {
 	return p.index-1 >= 0
