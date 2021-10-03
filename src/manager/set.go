@@ -57,12 +57,59 @@ func (s Set) AddPostForElement(post Post, element string) error {
 	INSERT_NAME_POST := fmt.Sprintf("INSERT INTO %v_Post (%v_id, post_id) VALUES (?, ?)", s.name, s.name)
 	_, err := s.db.Exec(INSERT_NAME_POST, elementId, post.Id())
 	return err
-	// insert as many to many
-	//query := fmt.Sprintf("")
 }
 
 func (s Set) RemovePostForElement(post Post, element string) error {
 	QUERY := fmt.Sprintf("DELETE FROM %v_POST WHERE post_id = ? AND %v_id = (SELECT id FROM %v WHERE name = ?)", s.name, s.name, s.name)
 	_, err := s.db.Exec(QUERY, post.Id(), element)
 	return err
+}
+
+func (s Set) Elements() []Element {
+	elements := make([]Element, 0)
+	query := fmt.Sprintf("SELECT id, name FROM %v", s.name)
+	rows, err := s.db.Query(query)
+	for rows.Next() {
+		element := Element{db: s.db}
+		if err := rows.Scan(&element.id, &element.name); err != nil {
+			log.Fatalln(err)
+		}
+		elements = append(elements, element)
+	}
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return elements
+}
+
+type Element struct {
+	id   int
+	name string
+	db   *sql.DB
+}
+
+func (e Element) Id() int {
+	return e.id
+}
+
+func (e Element) Name() string {
+	return e.name
+}
+
+func (e Element) Posts() []Post {
+	const QUERY = `SELECT id, name, date
+FROM Post
+JOIN Category_Post ON Category_Post.post_id = Post.id
+JOIN Category ON Category.name = ? AND Category.id = Category_Post.category_id`
+	posts = make([]Post, 0)
+	rows, err := e.db.Query(QUERY, e.name)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for rows.Next() {
+		post = newPost(e.db)
+		post.FillFromRows(rows, "")
+		posts = append(posts, post)
+	}
+	return posts
 }

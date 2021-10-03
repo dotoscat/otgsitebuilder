@@ -199,7 +199,7 @@ func checkInFolder(path string) (bool, error) {
 	return true, nil
 }
 
-func (c Content) GetCategory() Set {
+func (c Content) Categories() Set {
 	return newSet("Category", c.db)
 }
 

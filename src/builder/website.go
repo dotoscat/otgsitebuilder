@@ -25,9 +25,13 @@ type Website struct {
 	postsPages PostsPages
 	posts      []Writing
 	pages      []Writing
-	// categories map[string][]Writing
-	title string
-	style string
+	categories manager.Set
+	title      string
+	style      string
+}
+
+func (w Website) Categories() manager.Set {
+	return w.categories
 }
 
 //PostsPages returns its PostsPages.

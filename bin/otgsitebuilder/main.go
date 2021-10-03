@@ -129,6 +129,7 @@ func managePage(page manager.Page, flagList FlagList) {
 //manageDatabase is the main point entry to manage the metadata (database)
 func manageDatabase(flagList FlagList) {
 	content := manager.OpenContent(flagList.Content)
+	fmt.Println("categories:", content.Categories().Elements())
 	// fmt.Println("content: ", content)
 	if flagList.PostsPerPage > 0 {
 		fmt.Println("Set posts per page:", flagList.PostsPerPage)

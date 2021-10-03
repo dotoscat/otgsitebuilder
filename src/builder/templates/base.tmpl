@@ -12,11 +12,14 @@
         <header>
             <h1><a href="/">{{ .Website.Title }}</a></h1>
             <nav id="pages">
-                <ul>
-                    {{ range .Website.Pages }}
+                <ul>{{ range .Website.Pages }}
                     <li><a href="{{ .Url }}">{{ .RenderHeader }}</a></li>
-                    {{ end }}
-                </ul>
+                </ul>{{ end }}
+            </nav>
+            <nav id="categories">
+                <ul>{{ range .Website.Categories }}
+                    <li><a href="{{ .Url }}">{{ .Name }}</a></li>
+                </ul>{{ end }}
             </nav>
         </header>
         <main>
