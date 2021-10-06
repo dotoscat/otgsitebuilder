@@ -39,7 +39,7 @@ func NewPostsPages(postsPerPage int, posts []Writing, base string) PostsPages {
 			totalPosts = postsPerPage
 		}
 		if iPage == 0 {
-			url = fmt.Sprintf("%v.html", base)
+			url = fmt.Sprintf("/%v.html", base)
 		} else {
 			url = fmt.Sprintf("/%v%v.html", base, iPage)
 		}
