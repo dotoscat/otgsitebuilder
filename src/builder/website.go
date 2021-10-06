@@ -20,17 +20,33 @@ import (
 	"github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
+// Set pages
+// ie url /category/testing1.html
+
+type ElementPage struct {
+	element manager.Element
+	url     string
+}
+
+func (s ElementPage) Name() string {
+	return s.element.Name()
+}
+
+func (s ElementPage) Url() string {
+	return s.url
+}
+
 //Website represents a website with its posts PostsPage and PostsPage.
 type Website struct {
 	postsPages PostsPages
 	posts      []Writing
 	pages      []Writing
-	categories manager.Set
+	categories []ElementPage
 	title      string
 	style      string
 }
 
-func (w Website) Categories() manager.Set {
+func (w Website) Categories() []ElementPage {
 	return w.categories
 }
 
@@ -66,7 +82,7 @@ func (w Website) HasStyle() bool {
 }
 
 //NewWebsite returns info about the website.
-func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []manager.Page) Website {
+func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []manager.Page, content manager.Content) Website {
 	postsWritings := make([]Writing, len(posts))
 	for i, post := range posts {
 		postsWritings[i] = NewWriting(&post, "posts")
@@ -77,5 +93,10 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 	for i := 0; i < nWebsitePages; i++ {
 		websitePages[i] = NewWriting(&(pages[i]), "/pages")
 	}
-	return Website{postsPages, postsWritings, websitePages, title, ""}
+	categories := make([]ElementPage, 0)
+	for _, element := range content.Categories().Elements() {
+		elementPage := ElementPage{element, "/categories/" + element.Name() + ".html"}
+		categories = append(categories, elementPage)
+	}
+	return Website{postsPages, postsWritings, websitePages, categories, title, ""}
 }

@@ -101,13 +101,13 @@ func (e Element) Posts() []Post {
 FROM Post
 JOIN Category_Post ON Category_Post.post_id = Post.id
 JOIN Category ON Category.name = ? AND Category.id = Category_Post.category_id`
-	posts = make([]Post, 0)
+	posts := make([]Post, 0)
 	rows, err := e.db.Query(QUERY, e.name)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	for rows.Next() {
-		post = newPost(e.db)
+		post := newPost(e.db)
 		post.FillFromRows(rows, "")
 		posts = append(posts, post)
 	}

@@ -106,11 +106,11 @@ func managePost(post manager.Post, flagList FlagList, content manager.Content) {
 		}
 	}
 	if flagList.Category != "" && flagList.RemoveCategory == false {
-		if err := content.GetCategory().AddPostForElement(post, flagList.Category); err != nil {
+		if err := content.Categories().AddPostForElement(post, flagList.Category); err != nil {
 			log.Fatalln(err)
 		}
 	} else if flagList.Category != "" && flagList.RemoveCategory == true {
-		if err := content.GetCategory().RemovePostForElement(post, flagList.Category); err != nil {
+		if err := content.Categories().RemovePostForElement(post, flagList.Category); err != nil {
 			log.Fatalln(err)
 		}
 	}
@@ -196,7 +196,7 @@ func build(flags FlagList) {
 	posts := content.GetPosts()
 	pages := content.GetPages()
 	fmt.Println(posts)
-	website := builder.NewWebsite(content.Title(), content.PostsPerPage(), posts, pages)
+	website := builder.NewWebsite(content.Title(), content.PostsPerPage(), posts, pages, content)
 	if flags.Theme != "" {
 		website.SetStyle(filepath.Join("/", filepath.Base(flags.Theme)))
 	}
