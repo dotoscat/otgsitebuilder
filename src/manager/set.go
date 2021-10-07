@@ -29,6 +29,10 @@ func newSet(name string, db *sql.DB) Set {
 	return Set{name, db}
 }
 
+func (s Set) Name() string {
+	return s.name
+}
+
 func (s Set) AddElement(element string) (int64, error) {
 	query := fmt.Sprintf("INSERT INTO %v (name) VALUES (?)", s.name)
 	result, err := s.db.Exec(query, element)
@@ -70,7 +74,7 @@ func (s Set) Elements() []Element {
 	query := fmt.Sprintf("SELECT id, name FROM %v", s.name)
 	rows, err := s.db.Query(query)
 	for rows.Next() {
-		element := Element{db: s.db}
+		element := Element{set: s, db: s.db}
 		if err := rows.Scan(&element.id, &element.name); err != nil {
 			log.Fatalln(err)
 		}
@@ -83,9 +87,14 @@ func (s Set) Elements() []Element {
 }
 
 type Element struct {
+	set  Set
 	id   int
 	name string
 	db   *sql.DB
+}
+
+func (e Element) Set() Set {
+	return e.set
 }
 
 func (e Element) Id() int {
@@ -94,6 +103,17 @@ func (e Element) Id() int {
 
 func (e Element) Name() string {
 	return e.name
+}
+
+func (e Element) PostIn(post Post) bool {
+	query := fmt.Sprintf("SELECT count(*) AS ISIN FROM %v_Post WHERE category_id = ? AND post_id = ?", e.set.Name())
+	isIn := 0
+	if row := e.db.QueryRow(query, e.id, post.Id()); row.Err() != nil {
+		log.Fatalln(row.Err())
+	} else {
+		row.Scan(&isIn)
+	}
+	return isIn >= 1 // Should be only 1
 }
 
 func (e Element) Posts() []Post {

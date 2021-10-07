@@ -26,6 +26,18 @@ import (
 type ElementPage struct {
 	element manager.Element
 	url     string
+	posts   []Writing
+}
+
+func newElementPage(element manager.Element, url string, writings []Writing) ElementPage {
+	elementPage := ElementPage{element: element, url: url}
+	for _, writing := range writings {
+		post := writing.(manager.Filer)
+		if element.PostIn(post) {
+			elementPage.posts = append(elementPage.posts, writing)
+		}
+	}
+	return elementPage
 }
 
 func (s ElementPage) Name() string {
@@ -95,7 +107,8 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 	}
 	categories := make([]ElementPage, 0)
 	for _, element := range content.Categories().Elements() {
-		elementPage := ElementPage{element, "/categories/" + element.Name() + ".html"}
+		url := "/categories/" + element.Name() + ".html"
+		elementPage := newElementPage(element, url, postsWritings)
 		categories = append(categories, elementPage)
 	}
 	return Website{postsPages, postsWritings, websitePages, categories, title, ""}
