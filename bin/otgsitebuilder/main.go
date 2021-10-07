@@ -224,7 +224,6 @@ func build(flags FlagList) {
 		if err := postTemplate.Execute(outputFile, builder.PostsPageContext{page, website}); err != nil {
 			log.Fatalln(err)
 		}
-
 	}
 	for _, writing := range website.Posts() {
 		builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
@@ -236,6 +235,7 @@ func build(flags FlagList) {
 		builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
 	}
 	fmt.Println("DONE")
+	fmt.Println("categories", website.Categories())
 	builder.CopyDir(filepath.Join(base, "static"), staticDirPath)
 	// render user pages, no posts pages
 }

@@ -26,8 +26,8 @@ import (
 
 //Writing stores a copy of the manager.File and a final url of the post
 type Writing struct {
-	manager.Filer
-	url string
+	file manager.Filer
+	url  string
 }
 
 //NewWriting constructs a Writing value with a baseUrl to be used along with the the manager.File Name
@@ -37,15 +37,19 @@ func NewWriting(file manager.Filer, baseUrl string) Writing {
 	return Writing{file, url}
 }
 
+func (w Writing) File() manager.Filer {
+	return w.file
+}
+
 //RenderHeader returns info about this file stored in the database to be used as a header
 func (w Writing) RenderHeader() string {
-	return w.Header()
+	return w.file.Header()
 }
 
 //RenderContent returns HTML from a markdown format writing
 func (w Writing) RenderContent() string {
 	var content string
-	if source, err := os.ReadFile(w.Path()); err != nil {
+	if source, err := os.ReadFile(w.file.Path()); err != nil {
 		log.Fatalln(err)
 	} else {
 		content = string(markdown.ToHTML(source, nil, nil))

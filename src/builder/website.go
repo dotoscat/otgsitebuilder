@@ -32,8 +32,9 @@ type ElementPage struct {
 func newElementPage(element manager.Element, url string, writings []Writing) ElementPage {
 	elementPage := ElementPage{element: element, url: url}
 	for _, writing := range writings {
-		post := writing.(manager.Filer)
-		if element.PostIn(post) {
+		file := writing.File()
+		post := file.(*manager.Post)
+		if element.PostIn(*post) {
 			elementPage.posts = append(elementPage.posts, writing)
 		}
 	}
