@@ -37,7 +37,7 @@ var WritingTemplates embed.FS
 //go:embed templates/setpage.tmpl
 var SetTemplates embed.FS
 
-type PostWritingContenxt struct {
+type PostWritingContext struct {
 	Writing PostWriting
 	Website Website
 }
@@ -122,7 +122,7 @@ func WriteWriting(website Website, writing Writinger, outputPath string, templat
 	default:
 		context = WritingContext{writing.(Writing), website}
 	case PostWriting:
-		context = PostWritingContenxt{writing.(PostWriting), website}
+		context = PostWritingContext{writing.(PostWriting), website}
 	}
 	if err := template.Execute(outputWriting, context); err != nil {
 		log.Fatalln("output writing template err:", err)
