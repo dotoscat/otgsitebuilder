@@ -120,7 +120,7 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 	nWebsitePages := len(pages) // no posts pages
 	websitePages := make([]Writing, nWebsitePages)
 	for i := 0; i < nWebsitePages; i++ {
-		websitePages[i] = NewWriting(&(pages[i]), "/pages")
+		websitePages[i] = NewWriting(pages[i], "/pages")
 	}
 	categories := make([]ElementPage, 0)
 	for _, element := range content.Categories().Elements() {

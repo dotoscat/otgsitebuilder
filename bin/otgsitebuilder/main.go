@@ -237,6 +237,7 @@ func build(flags FlagList) {
 	fmt.Println("pages:", website.Pages())
 	for _, writing := range website.Pages() {
 		fmt.Println("Render page url:", writing.Url(), outputDirPath)
+		fmt.Println("Page content:", writing.RenderContent())
 		builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
 	}
 	for _, element := range website.Categories() {

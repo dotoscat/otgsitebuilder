@@ -110,7 +110,6 @@ func WriteWriting(website Website, writing Writinger, outputPath string, templat
 	fmt.Println("output writing:", writing)
 	outputWriting, err := os.Create(outputWritingPath)
 	defer outputWriting.Close()
-	fmt.Println("Defer close")
 	if err != nil {
 		log.Fatalln("output writing err:", err)
 	}
@@ -119,10 +118,16 @@ func WriteWriting(website Website, writing Writinger, outputPath string, templat
 	var writingInterface interface{} = writing
 	switch writingInterface.(type) {
 	case Writing:
-	default:
 		context = WritingContext{writing.(Writing), website}
 	case PostWriting:
-		context = PostWritingContext{writing.(PostWriting), website}
+		//if err := template.Execute(outputWriting, PostWritingContext{writing.(PostWriting), website}); err != nil {
+		//    log.Fatalln("output writing template err:", err)
+		//}
+		postData := writing.(PostWriting)
+		context = PostWritingContext{postData, website}
+		//return
+	default:
+		log.Fatalln("Default!")
 	}
 	if err := template.Execute(outputWriting, context); err != nil {
 		log.Fatalln("output writing template err:", err)

@@ -72,30 +72,30 @@ func (pw PostWriting) RenderPartialContent(n int) string {
 
 //Writing stores a copy of the manager.File and a final url of the post
 type Writing struct {
-	file manager.Filer
+	page manager.Page
 	url  string
 }
 
 //NewWriting constructs a Writing value with a baseUrl to be used along with the the manager.File Name
-func NewWriting(file manager.Filer, baseUrl string) Writing {
+func NewWriting(file manager.Page, baseUrl string) Writing {
 	fmt.Println("base url:", baseUrl, "; file ID:", file.Id(), "file:", file)
 	url := fmt.Sprint(baseUrl, "/", strings.Replace(file.Name(), ".md", ".html", -1))
 	return Writing{file, url}
 }
 
 func (w Writing) File() manager.Filer {
-	return w.file
+	return &w.page
 }
 
 //RenderHeader returns info about this file stored in the database to be used as a header
 func (w Writing) RenderHeader() string {
-	return w.file.Header()
+	return w.page.Header()
 }
 
 //RenderContent returns HTML from a markdown format writing
 func (w Writing) RenderContent() string {
 	var content string
-	if source, err := os.ReadFile(w.file.Path()); err != nil {
+	if source, err := os.ReadFile(w.page.Path()); err != nil {
 		log.Fatalln(err)
 	} else {
 		content = string(markdown.ToHTML(source, nil, nil))
