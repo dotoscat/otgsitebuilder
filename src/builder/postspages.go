@@ -21,7 +21,7 @@ import (
 //PostsPages is defined type for a slice of PostsPage.
 type PostsPages []PostsPage
 
-func NewPostsPages(postsPerPage int, posts []Writing, base string) PostsPages {
+func NewPostsPages(postsPerPage int, posts []PostWriting, base string) PostsPages {
 	nPages := len(posts) / postsPerPage
 	postsExtraPage := len(posts) % postsPerPage
 	extraPage := postsExtraPage > 0

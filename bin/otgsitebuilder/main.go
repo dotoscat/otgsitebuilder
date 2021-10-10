@@ -182,6 +182,7 @@ func build(flags FlagList) {
 	builder.Mkdir(outputDirPath, "posts")
 	builder.Mkdir(outputDirPath, "pages")
 	builder.Mkdir(outputDirPath, "static")
+	builder.Mkdir(outputDirPath, "categories")
 
 	if flags.Theme != "" {
 		switch {
@@ -206,6 +207,10 @@ func build(flags FlagList) {
 		log.Fatalln(err)
 	}
 	writingTemplate, err := template.ParseFS(builder.WritingTemplates, "templates/*.tmpl")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	setpageTemplate, err := template.ParseFS(builder.SetTemplates, "templates/*.tmpl")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -234,8 +239,20 @@ func build(flags FlagList) {
 		fmt.Println("Render page url:", writing.Url(), outputDirPath)
 		builder.WriteWriting(website, writing, outputDirPath, writingTemplate)
 	}
+	for _, element := range website.Categories() {
+		outputFilePath := filepath.Join(outputDirPath, element.Url())
+		outputFile, err := os.Create(outputFilePath)
+		defer outputFile.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		context := builder.SetPageContext{element, website}
+		if err := setpageTemplate.Execute(outputFile, context); err != nil {
+			log.Fatalln(err)
+		}
+	}
 	fmt.Println("DONE")
-	fmt.Println("categories", website.Categories())
+	// fmt.Println("categories", website.Categories())
 	builder.CopyDir(filepath.Join(base, "static"), staticDirPath)
 	// render user pages, no posts pages
 }

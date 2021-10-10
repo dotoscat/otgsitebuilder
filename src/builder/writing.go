@@ -24,6 +24,52 @@ import (
 	"github.com/gomarkdown/markdown"
 )
 
+// Writinger is an interface for writable content like pages or posts
+type Writinger interface {
+	RenderHeader() string
+	RenderContent() string
+	Url() string
+	RenderPartialContent(int) string
+}
+
+// PostWriting is an spectific struct for post that implements the Writinger interface.
+// Its methods are the same in behavior as the Writing struct
+type PostWriting struct {
+	post manager.Post
+	url  string
+}
+
+func NewPostWriting(post manager.Post, baseUrl string) PostWriting {
+	url := fmt.Sprint(baseUrl, "/", strings.Replace(post.Name(), ".md", ".html", -1))
+	return PostWriting{post, url}
+}
+
+func (pw PostWriting) RenderHeader() string {
+	return pw.post.Header()
+}
+
+func (pw PostWriting) RenderContent() string {
+	var content string
+	if source, err := os.ReadFile(pw.post.Path()); err != nil {
+		log.Fatalln(err)
+	} else {
+		content = string(markdown.ToHTML(source, nil, nil))
+	}
+	return content
+}
+
+func (pw PostWriting) Url() string {
+	return pw.url
+}
+
+func (pw PostWriting) RenderPartialContent(n int) string {
+	content := pw.RenderContent()
+	if max := len(content); max < n || n <= 0 {
+		return content[:max]
+	}
+	return content[:n]
+}
+
 //Writing stores a copy of the manager.File and a final url of the post
 type Writing struct {
 	file manager.Filer
@@ -32,7 +78,7 @@ type Writing struct {
 
 //NewWriting constructs a Writing value with a baseUrl to be used along with the the manager.File Name
 func NewWriting(file manager.Filer, baseUrl string) Writing {
-	fmt.Println("base url:", baseUrl)
+	fmt.Println("base url:", baseUrl, "; file ID:", file.Id(), "file:", file)
 	url := fmt.Sprint(baseUrl, "/", strings.Replace(file.Name(), ".md", ".html", -1))
 	return Writing{file, url}
 }

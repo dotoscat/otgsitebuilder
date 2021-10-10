@@ -1,23 +1,22 @@
+# OTGSITEBUILDER
 
+This is a static blog generator which it takes another different approach
+for metadata. Instead of store metadata on posts (frontend), store them in a database.
+So you use commands and/or paramaters to manipulate metadata related with
+you content and you can use or write content with any tool or program.
 
-** Commands
+The application has two modes: *builder* and *manager*; and always operate
+with a folder with content.
 
-** Templates
+With *manager* mode you operate with metadata and content options.
+With *builder* mode you contruct the site with the content, metadata and content options.
 
-base.tmpl
-(index.tmpl)
-postspage.tmpl -> The first page of posts page is the index
-writing.tmpl
-page.tmpl
+## Commands
 
-** TODO
+### Base
 
-[x] Pages (no posts pages)
-[x] Pages, keep file and add a reference
-[x] Posts
-[x] static folder, only copy recursively
-[x] Store options suchs as number of pages, title and output path
-[ ] Add the Set interface
-[ ] Categories
-[ ] Tags
-[ ] End to comments functions and types
+otgsitebuilder -mode (builder|manager) -content <path to folder>
+
+### Builder
+
+### Manager

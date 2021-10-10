@@ -1,0 +1,20 @@
+{{ template "base" }}
+{{ block "body" . }}
+    {{ .ElementPage.Name }}
+    <ul>
+        {{ range .ElementPage.Posts }}
+            <li>
+                <section>
+                <h2><a href="{{ .Url }}">{{ .RenderHeader }}</a></h2>
+                {{ $content := .RenderPartialContent 255 }}
+                {{ $readMore := eq (len $content) 255 }}
+                <article>{{ $content }}{{ if $readMore }}(...){{ end }}</article>
+                {{ if $readMore }}
+                <p><a href="{{ .Url }}">+</a></p>
+                {{ end }}
+                </section>
+            </li>
+        {{ end }}
+    </ul>
+
+{{ end }}

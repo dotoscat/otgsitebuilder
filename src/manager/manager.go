@@ -44,11 +44,13 @@ var (
 type Filer interface { //Fil(l)er
 	Fill(*sql.Row, string) error
 	FillFromRows(*sql.Rows, string) error
+	Id() int64
 	Name() string
 	Path() string
 	Header() string
 }
 
+// File is the base struct for Post and Page
 type File struct {
 	id   int64
 	name string

@@ -33,6 +33,15 @@ var BasicTemplates embed.FS
 //go:embed templates/writing.tmpl
 var WritingTemplates embed.FS
 
+//go:embed templates/base.tmpl
+//go:embed templates/setpage.tmpl
+var SetTemplates embed.FS
+
+type PostWritingContenxt struct {
+	Writing PostWriting
+	Website Website
+}
+
 type WritingContext struct {
 	Writing Writing
 	Website Website
@@ -40,6 +49,11 @@ type WritingContext struct {
 
 type PostsPageContext struct {
 	CurrentPage PostsPage
+	Website     Website
+}
+
+type SetPageContext struct {
+	ElementPage ElementPage
 	Website     Website
 }
 
@@ -90,7 +104,7 @@ func CopyDir(src, dst string) {
 
 }
 
-func WriteWriting(website Website, writing Writing, outputPath string, template *template.Template) {
+func WriteWriting(website Website, writing Writinger, outputPath string, template *template.Template) {
 	outputWritingPath := filepath.Join(outputPath, writing.Url())
 	fmt.Println("output writing path:", outputWritingPath)
 	fmt.Println("output writing:", writing)
@@ -101,7 +115,16 @@ func WriteWriting(website Website, writing Writing, outputPath string, template 
 		log.Fatalln("output writing err:", err)
 	}
 	fmt.Println("Template execute:", *template, writing, *outputWriting)
-	if err := template.Execute(outputWriting, WritingContext{writing, website}); err != nil {
+	var context interface{}
+	var writingInterface interface{} = writing
+	switch writingInterface.(type) {
+	case Writing:
+	default:
+		context = WritingContext{writing.(Writing), website}
+	case PostWriting:
+		context = PostWritingContenxt{writing.(PostWriting), website}
+	}
+	if err := template.Execute(outputWriting, context); err != nil {
 		log.Fatalln("output writing template err:", err)
 	}
 	fmt.Println("done writing:", writing)

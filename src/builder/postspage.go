@@ -19,7 +19,7 @@ package builder
 type PostsPage struct {
 	parent   *PostsPages
 	index    int
-	writings []Writing
+	writings []PostWriting
 	url      string
 }
 
@@ -62,13 +62,13 @@ func (p PostsPage) Empty() bool {
 }
 
 //Writinngs returns the writings stored in this PostsPage
-func (p PostsPage) Writings() []Writing {
+func (p PostsPage) Writings() []PostWriting {
 	return p.writings
 }
 
 //addWriting is a convenient method to add writings to this PostsPage.
 //The return value is the same writing passed as argument.
-func (p *PostsPage) addWriting(writing Writing) Writing {
+func (p *PostsPage) addWriting(writing PostWriting) PostWriting {
 	p.writings = append(p.writings, writing)
 	return writing
 }

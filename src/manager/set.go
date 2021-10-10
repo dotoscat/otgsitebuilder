@@ -20,11 +20,13 @@ import (
 	"log"
 )
 
+// Set represents a table in database
 type Set struct {
 	name string
 	db   *sql.DB
 }
 
+// newSet name is the partial name of a table
 func newSet(name string, db *sql.DB) Set {
 	return Set{name, db}
 }
@@ -33,6 +35,7 @@ func (s Set) Name() string {
 	return s.name
 }
 
+// AddElement adds a new row, an element like a category or tag name
 func (s Set) AddElement(element string) (int64, error) {
 	query := fmt.Sprintf("INSERT INTO %v (name) VALUES (?)", s.name)
 	result, err := s.db.Exec(query, element)
@@ -86,6 +89,7 @@ func (s Set) Elements() []Element {
 	return elements
 }
 
+// Element represents a member, or row, of the name which this belongs.
 type Element struct {
 	set  Set
 	id   int
@@ -93,6 +97,7 @@ type Element struct {
 	db   *sql.DB
 }
 
+// Set returns its parent
 func (e Element) Set() Set {
 	return e.set
 }
@@ -105,9 +110,11 @@ func (e Element) Name() string {
 	return e.name
 }
 
+// PostIn tells if a specific post is in this element as true or false
 func (e Element) PostIn(post Post) bool {
 	query := fmt.Sprintf("SELECT count(*) AS ISIN FROM %v_Post WHERE category_id = ? AND post_id = ?", e.set.Name())
 	isIn := 0
+	//fmt.Println("PostIn:", query, e.id, post.Id())
 	if row := e.db.QueryRow(query, e.id, post.Id()); row.Err() != nil {
 		log.Fatalln(row.Err())
 	} else {

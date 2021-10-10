@@ -15,7 +15,7 @@
 package builder
 
 import (
-	// "fmt"
+	"fmt"
 
 	"github.com/dotoscat/otgsitebuilder/src/manager"
 )
@@ -26,19 +26,21 @@ import (
 type ElementPage struct {
 	element manager.Element
 	url     string
-	posts   []Writing
+	posts   []PostWriting
 }
 
-func newElementPage(element manager.Element, url string, writings []Writing) ElementPage {
+func newElementPage(element manager.Element, url string, writings []PostWriting) ElementPage {
 	elementPage := ElementPage{element: element, url: url}
 	for _, writing := range writings {
-		file := writing.File()
-		post := file.(*manager.Post)
-		if element.PostIn(*post) {
+		if element.PostIn(writing.post) {
 			elementPage.posts = append(elementPage.posts, writing)
 		}
 	}
 	return elementPage
+}
+
+func (s ElementPage) Posts() []PostWriting {
+	return s.posts
 }
 
 func (s ElementPage) Name() string {
@@ -52,7 +54,7 @@ func (s ElementPage) Url() string {
 //Website represents a website with its posts PostsPage and PostsPage.
 type Website struct {
 	postsPages PostsPages
-	posts      []Writing
+	posts      []PostWriting
 	pages      []Writing
 	categories []ElementPage
 	title      string
@@ -74,7 +76,7 @@ func (w Website) Pages() []Writing {
 }
 
 //Posts returns all the posts
-func (w Website) Posts() []Writing {
+func (w Website) Posts() []PostWriting {
 	return w.posts
 }
 
@@ -96,10 +98,24 @@ func (w Website) HasStyle() bool {
 
 //NewWebsite returns info about the website.
 func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []manager.Page, content manager.Content) Website {
-	postsWritings := make([]Writing, len(posts))
-	for i, post := range posts {
-		postsWritings[i] = NewWriting(&post, "posts")
+	postsWritings := make([]PostWriting, 0)
+	fmt.Println("DEBUG LOG")
+	for _, post := range posts {
+		writing := NewPostWriting(post, "posts")
+		//fmt.Println("writing FILE ID before add it:", writing.File().Id())
+		postsWritings = append(postsWritings, writing)
+		//fmt.Println("Post -> writing ids:", post.Id())
+		//fmt.Println("&post:", &post)
+		//fmt.Println("writing - arrayWriting:", writing, postsWritings[i])
+		//fmt.Println("postWritings over time:", postsWritings)
+		//fmt.Println("===")
 	}
+	// DEBUG: check postwritings
+	//fmt.Println("DEBUG each writing")
+	//for i := 0; i < len(postsWritings); i++ {
+	//  fmt.Println(postsWritings[i], "\nDEBUG ID:", postsWritings[i].post.Id())
+	//}
+	//
 	postsPages := NewPostsPages(postsPerPage, postsWritings, "index")
 	nWebsitePages := len(pages) // no posts pages
 	websitePages := make([]Writing, nWebsitePages)
@@ -108,6 +124,7 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 	}
 	categories := make([]ElementPage, 0)
 	for _, element := range content.Categories().Elements() {
+		//fmt.Println("for element:", element.Name())
 		url := "/categories/" + element.Name() + ".html"
 		elementPage := newElementPage(element, url, postsWritings)
 		categories = append(categories, elementPage)
