@@ -1,7 +1,7 @@
 # OTGSITEBUILDER
 
 This is a static blog generator which it takes another different approach
-for metadata. Instead of store metadata on posts (frontend), store them in a database.
+for metadata. Instead of store metadata on posts (frontmatter), store them in a database.
 So you use commands and/or paramaters to manipulate metadata related with
 you content and you can use or write content with any tool or program.
 
