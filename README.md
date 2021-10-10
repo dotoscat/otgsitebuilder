@@ -19,4 +19,8 @@ otgsitebuilder -mode (builder|manager) -content <path to folder>
 
 ### Builder
 
+The command below is enough to build your website to the folder *output*, which can be configured.
+
+otgsitebuilder -mode builder -content <path to folder>
+
 ### Manager
