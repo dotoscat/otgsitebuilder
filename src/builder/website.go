@@ -101,7 +101,7 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 	postsWritings := make([]PostWriting, 0)
 	fmt.Println("DEBUG LOG")
 	for _, post := range posts {
-		writing := NewPostWriting(post, "posts")
+		writing := NewPostWriting(post, "/posts")
 		//fmt.Println("writing FILE ID before add it:", writing.File().Id())
 		postsWritings = append(postsWritings, writing)
 		//fmt.Println("Post -> writing ids:", post.Id())
