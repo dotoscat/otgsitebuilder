@@ -22,6 +22,8 @@ import (
 
 	"github.com/dotoscat/otgsitebuilder/src/manager"
 	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 // Writinger is an interface for writable content like pages or posts
@@ -53,7 +55,9 @@ func (pw PostWriting) RenderContent() string {
 	if source, err := os.ReadFile(pw.post.Path()); err != nil {
 		log.Fatalln(err)
 	} else {
-		content = string(markdown.ToHTML(source, nil, nil))
+		myParser := parser.NewWithExtensions(parser.LaxHTMLBlocks | parser.CommonExtensions)
+		myRenderer := html.NewRenderer(html.RendererOptions{Flags: html.CommonFlags})
+		content = string(markdown.ToHTML(source, myParser, myRenderer))
 	}
 	return content
 }
@@ -98,7 +102,9 @@ func (w Writing) RenderContent() string {
 	if source, err := os.ReadFile(w.page.Path()); err != nil {
 		log.Fatalln(err)
 	} else {
-		content = string(markdown.ToHTML(source, nil, nil))
+		myParser := parser.NewWithExtensions(parser.LaxHTMLBlocks | parser.CommonExtensions)
+		myRenderer := html.NewRenderer(html.RendererOptions{Flags: html.CommonFlags})
+		content = string(markdown.ToHTML(source, myParser, myRenderer))
 	}
 	return content
 }
