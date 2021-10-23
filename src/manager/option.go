@@ -79,6 +79,32 @@ func (c Content) Title() string {
 	return title
 }
 
+//SetLicense sets the general license of the website contents
+func (c Content) SetLicense(license string) error {
+	const QUERY = "UPDATE Option SET license = ?"
+	if result, err := c.db.Exec(QUERY, license); err != nil {
+		return err
+	} else if affected, _ := result.RowsAffected(); affected == 0 {
+		c.generateDefaultValues()
+		return c.SetLicense(license)
+	}
+	return nil
+}
+
+//License returns the website license
+func (c Content) License() string {
+	const QUERY = "SELECT license FROM Option"
+	row := c.db.QueryRow(QUERY)
+	var license string
+	if err := row.Scan(&license); err == sql.ErrNoRows {
+		c.generateDefaultValues()
+		return c.License()
+	} else if err != nil {
+		log.Fatalln(err)
+	}
+	return license
+}
+
 //SetOutput changes the title of the website
 func (c Content) SetOutput(output string) error {
 	if fs.ValidPath(output) == false {

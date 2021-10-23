@@ -95,6 +95,7 @@ type FlagList struct {
 	PostsPerPage    int
 	Output          string
 	Category        string
+	License         string
 }
 
 //managePost is the main point entry to manage a post
@@ -143,6 +144,10 @@ func manageDatabase(flagList FlagList) {
 		content.SetTitle(flagList.Title)
 	} else {
 		fmt.Println("Title:", content.Title())
+	}
+	if flagList.License != "" {
+		content.SetLicense(flagList.License)
+		fmt.Println("License:", content.License())
 	}
 	if flagList.Output != "" {
 		if err := content.SetOutput(flagList.Output); err != nil {
@@ -268,6 +273,7 @@ func main() {
 	flag.StringVar(&flagList.Title, "title", "", "Set the title to use for building the site")
 	flag.StringVar(&flagList.Output, "output", "", "Set the output of the build process")
 	flag.StringVar(&flagList.Category, "category", "", "Set the category for a post")
+	flag.StringVar(&flagList.License, "license", "", "Set copyright for the website")
 	flag.IntVar(&flagList.PostsPerPage, "posts-per-page", -1, "Set the posts per page for building the site")
 	flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
 	flag.BoolVar(&flagList.RemoveCategory, "remove-category", false, "Remove category for post")

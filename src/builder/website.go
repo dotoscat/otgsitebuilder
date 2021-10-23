@@ -59,6 +59,7 @@ type Website struct {
 	categories []ElementPage
 	title      string
 	style      string
+	license    string
 }
 
 func (w Website) Categories() []ElementPage {
@@ -82,6 +83,10 @@ func (w Website) Posts() []PostWriting {
 
 func (w Website) Title() string {
 	return w.title
+}
+
+func (w Website) License() string {
+	return w.license
 }
 
 func (w *Website) SetStyle(style string) {
@@ -129,5 +134,6 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 		elementPage := newElementPage(element, url, postsWritings)
 		categories = append(categories, elementPage)
 	}
-	return Website{postsPages, postsWritings, websitePages, categories, title, ""}
+	license := content.License()
+	return Website{postsPages, postsWritings, websitePages, categories, title, "", license}
 }

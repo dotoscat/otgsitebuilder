@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS Post (
 CREATE TABLE IF NOT EXISTS Option (
     title           VARCHAR (255)   DEFAULT "My Site",
     posts_per_page  INTEGER         DEFAULT 3,
-    output          VARCHAR (255)   DEFAULT "output"
+    output          VARCHAR (255)   DEFAULT "output",
+    license         VARCHAR (1024)  DEFAULT ""
 );
 
 CREATE TABLE IF NOT EXISTS Category (
