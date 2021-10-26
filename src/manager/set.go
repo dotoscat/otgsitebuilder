@@ -35,6 +35,16 @@ func (s Set) Name() string {
 	return s.name
 }
 
+// DeleteUnusedElements removes those elements without any post related
+func (s Set) DeleteUnusedElements() {
+	query := fmt.Sprintf(`DELETE FROM %v WHERE id IN
+(SELECT id FROM %v WHERE id NOT IN
+(SELECT %v_id FROM %v_Post))`, s.name, s.name, s.name, s.name)
+	if _, err := s.db.Exec(query); err != nil {
+		log.Fatalln(err)
+	}
+}
+
 // AddElement adds a new row, an element like a category or tag name
 func (s Set) AddElement(element string) (int64, error) {
 	query := fmt.Sprintf("INSERT INTO %v (name) VALUES (?)", s.name)

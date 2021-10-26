@@ -106,13 +106,18 @@ func managePost(post manager.Post, flagList FlagList, content manager.Content) {
 			log.Fatalln(err)
 		}
 	}
+	fmt.Println("remove categories:", flagList.RemoveCategory)
+	fmt.Println("category to remove:", flagList.Category)
 	if flagList.Category != "" && flagList.RemoveCategory == false {
 		if err := content.Categories().AddPostForElement(post, flagList.Category); err != nil {
 			log.Fatalln(err)
 		}
 	} else if flagList.Category != "" && flagList.RemoveCategory == true {
-		if err := content.Categories().RemovePostForElement(post, flagList.Category); err != nil {
+		categories := content.Categories()
+		if err := categories.RemovePostForElement(post, flagList.Category); err != nil {
 			log.Fatalln(err)
+		} else {
+			categories.DeleteUnusedElements()
 		}
 	}
 }
@@ -129,6 +134,7 @@ func managePage(page manager.Page, flagList FlagList) {
 
 //manageDatabase is the main point entry to manage the metadata (database)
 func manageDatabase(flagList FlagList) {
+	fmt.Println("Category in manager:", flagList.Category)
 	content := manager.OpenContent(flagList.Content)
 	fmt.Println("categories:", content.Categories().Elements())
 	// fmt.Println("content: ", content)
@@ -279,6 +285,7 @@ func main() {
 	flag.BoolVar(&flagList.RemoveCategory, "remove-category", false, "Remove category for post")
 	flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
 	flag.Parse()
+	fmt.Println("Category in main:", flagList.Category)
 	if len(flagList.Content) == 0 {
 		log.Fatalln("'-content' path is empty")
 	}
