@@ -8,6 +8,9 @@ Hybrid approach.
 ### Added
 
 * Embed html and javascript code in markdown.
+* Display version
+* Remove automatically any unused category
+* Configure global license for website
 
 ### Changed
 

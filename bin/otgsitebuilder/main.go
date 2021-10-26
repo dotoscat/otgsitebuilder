@@ -34,6 +34,7 @@ import (
 const (
 	MANAGER_MODE = "manager"
 	BUILDER_MODE = "builder"
+	VERSION      = "0.2.0"
 )
 
 //DataValue is special flag to handle time
@@ -90,6 +91,7 @@ type FlagList struct {
 	Reference       string
 	RemoveReference bool
 	RemoveCategory  bool
+	Version         bool
 	Theme           string
 	Title           string
 	PostsPerPage    int
@@ -283,9 +285,13 @@ func main() {
 	flag.IntVar(&flagList.PostsPerPage, "posts-per-page", -1, "Set the posts per page for building the site")
 	flag.BoolVar(&flagList.RemoveReference, "remove-reference", false, "Remove reference")
 	flag.BoolVar(&flagList.RemoveCategory, "remove-category", false, "Remove category for post")
+	flag.BoolVar(&flagList.Version, "version", false, "Show current version")
 	flag.Var(&flagList.Date, "date", "Set a date, in YYYY-M-D format, for a post")
 	flag.Parse()
-	fmt.Println("Category in main:", flagList.Category)
+	if flagList.Version == true {
+		fmt.Println("version:", VERSION)
+		return
+	}
 	if len(flagList.Content) == 0 {
 		log.Fatalln("'-content' path is empty")
 	}
