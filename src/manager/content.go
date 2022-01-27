@@ -13,6 +13,14 @@
 // limitations under the License.
 package manager
 
+import (
+    "database/sql"
+    "os"
+    "log"
+    "fmt"
+    "path/filepath"
+)
+
 type Content struct {
 	db        *sql.DB
 	postsPath string
@@ -108,6 +116,7 @@ func (c Content) GetPageFile(filename string) Page {
 	return Page{}
 }
 
+//TODO: replace there for concurrent friendly
 func (c Content) GetPosts() []Post {
 	// Index all files if they are not indexed
 

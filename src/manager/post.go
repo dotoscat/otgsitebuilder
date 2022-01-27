@@ -13,6 +13,14 @@
 // limitations under the License.
 package manager
 
+import (
+    "database/sql"
+    "fmt"
+    "time"
+    "log"
+    "path/filepath"
+)
+
 type Post struct {
 	File
 	date time.Time
@@ -43,7 +51,7 @@ func (p Post) SetDate(date string) error {
 	return err
 }
 
-// Deprecated: This is not a manager task
+// Deprecated: This is not a builder task
 func (p Post) Header() string {
 	return fmt.Sprint(p.Date())
 }

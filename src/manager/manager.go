@@ -1,4 +1,4 @@
-// Copyright 2021 Oscar Triano García
+// Copyright 2021 Oscar Triano GarcÃ­a
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,15 +15,9 @@
 package manager
 
 import (
-	"database/sql"
 	_ "embed"
 	"errors"
-	"fmt"
-	"log"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )

@@ -13,6 +13,10 @@
 // limitations under the License.
 package manager
 
+import (
+    "database/sql"
+)
+
 type Filer interface { //Fil(l)er
 	Fill(*sql.Row, string) error
 	FillFromRows(*sql.Rows, string) error

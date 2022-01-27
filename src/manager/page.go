@@ -13,6 +13,13 @@
 // limitations under the License.
 package manager
 
+import (
+    "database/sql"
+    "strings"
+    "path/filepath"
+    "log"
+)
+
 type Page struct {
 	File
 	reference string
@@ -40,6 +47,7 @@ func (p *Page) SetReference(reference string) error {
 	return err
 }
 
+// Deprecated: Header must be implemented in builder
 func (p Page) Header() string {
 	if p.reference == "" {
 		return strings.Replace(p.name, ".md", "", 1)
