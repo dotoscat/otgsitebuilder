@@ -116,7 +116,8 @@ func (c Content) GetPageFile(filename string) Page {
 	return Page{}
 }
 
-//TODO: replace there for concurrent friendly
+//TODO: replace there for concurrent friendly in pagesPath
+// For example you can retrieve all posts in 1 pages or 4
 func (c Content) GetPosts() []Post {
 	// Index all files if they are not indexed
 
@@ -165,6 +166,66 @@ func (c Content) GetPages() []Page {
 		files = append(files, page)
 	}
 	return files
+}
+
+// getPostsByCategory(element, postsPerPage) Batch
+// If element is "", or empty, then return all
+// getPostsByTag(element, postsPerPage) Pages
+// getPages
+
+type Batch struct{
+    query string
+}
+
+type Batches struct {
+    batches []Batch
+}
+
+const ALL = ""
+
+// GetPostsByCategory returns batch from
+func (c Content) GetPostsByCategory(category string, postsPerPage, nCores int) Batches{
+    if postsPerPage <= 0 {
+        postsPerPage = 3
+    }
+
+    const QUERY_ALL = "SELECT id, name, date FROM Post LIMIT %v OFFSET %v"
+    const QUERY_CATEGORY = `SELECT id, name, date FROM POST
+JOIN Category_Post ON Category_Post.post_id = Post.id
+JOIN Category ON Category_Post.category_id = Category.id
+WHERE Category.name = ? LIMIT %v OFFSET %v`
+
+    const QUERY_COUNT = "SELECT count(*) FROM Post"
+    var total int
+
+    row := c.db.QueryRow(QUERY_COUNT)
+    if row.Err() != nil {
+        log.Fatalln(row.Err())
+    }
+    if err := row.Scan(&total); err != nil {
+        log.Fatalln(err)
+    }
+
+    fmt.Println("total: ", total)
+    nPages := total/postsPerPage
+    if total % postsPerPage > 0 {
+        nPages++
+    }
+    fmt.Println("total pages: ", nPages)
+    batches := make([]Batch, nPages)
+
+    var query string
+    if category == ALL {
+        query = QUERY_ALL
+    } else {
+        query = QUERY_CATEGORY
+    }
+
+    for i, _ := range batches{
+        batches[i].query = fmt.Sprintf(query, postsPerPage, i*postsPerPage)
+    }
+
+    return Batches{batches}
 }
 
 func OpenContent(base string) Content {

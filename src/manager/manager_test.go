@@ -15,31 +15,14 @@
 package manager
 
 import (
-	_ "embed"
-	"errors"
-	"os"
-
-	_ "github.com/mattn/go-sqlite3"
+    "testing"
 )
 
-//go:embed database-struct.sql
-var databaseStruct string
-
-const (
-	METADATA_FILE = ".metadata.db"
-)
-
-var (
-	ErrIsDir      = errors.New("File is a directory.")
-	ErrNotIndexed = errors.New("File is not indexed.")
-	ErrNoValid    = errors.New("This file is not valid")
-)
-
-func checkInFolder(path string) (bool, error) {
-	if info, err := os.Stat(path); err != nil {
-		return false, err
-	} else if info.IsDir() {
-		return false, ErrIsDir
-	}
-	return true, nil
+func TestContent(t *testing.T) {
+    const CORE_2 = 2
+    content := OpenContent("testdata/content")
+    t.Log("content", content)
+    batch := content.GetPostsByCategory(ALL, 3, CORE_2)
+    t.Log("batch", batch)
 }
+
