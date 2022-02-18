@@ -173,18 +173,10 @@ func (c Content) GetPages() []Page {
 // getPostsByTag(element, postsPerPage) Pages
 // getPages
 
-type Batch struct{
-    query string
-}
-
-type Batches struct {
-    batches []Batch
-}
-
 const ALL = ""
 
 // GetPostsByCategory returns batch from
-func (c Content) GetPostsByCategory(category string, postsPerPage, nCores int) Batches{
+func (c Content) GetPostsByCategory(category string, postsPerPage, nCores int) (<-chan Batch) {
     if postsPerPage <= 0 {
         postsPerPage = 3
     }
@@ -212,7 +204,6 @@ WHERE Category.name = ? LIMIT %v OFFSET %v`
         nPages++
     }
     fmt.Println("total pages: ", nPages)
-    batches := make([]Batch, nPages)
 
     var query string
     if category == ALL {
@@ -221,11 +212,27 @@ WHERE Category.name = ? LIMIT %v OFFSET %v`
         query = QUERY_CATEGORY
     }
 
-    for i, _ := range batches{
-        batches[i].query = fmt.Sprintf(query, postsPerPage, i*postsPerPage)
-    }
+    //done := make(chan bool)
+    batchCh := make(chan Batch, nCores)
+    //postsDone := make(chan int)
 
-    return Batches{batches}
+    go func() {
+
+        for i := 0; i < nPages; i++ {
+            finalQuery := fmt.Sprintf(query, postsPerPage, i*postsPerPage)
+            var extra string
+            if category == ALL {
+                extra = ""
+            } else {
+                extra = category
+            }
+            batch := Batch{c.db, finalQuery, extra, i+1, total} // total, postsDone
+            batchCh <- batch
+        }
+        close(batchCh)
+    }()
+
+    return batchCh//, done
 }
 
 func OpenContent(base string) Content {

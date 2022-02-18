@@ -30,7 +30,7 @@ type Filer interface { //Fil(l)er
 type File struct {
 	id   int64
 	name string
-	path string
+	path string // deprecated: task to the builder
 	db   *sql.DB
 }
 

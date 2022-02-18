@@ -22,7 +22,17 @@ func TestContent(t *testing.T) {
     const CORE_2 = 2
     content := OpenContent("testdata/content")
     t.Log("content", content)
-    batch := content.GetPostsByCategory(ALL, 3, CORE_2)
-    t.Log("batch", batch)
+    batchCh := content.GetPostsByCategory(ALL, 3, CORE_2)
+    i := 0
+    for batch := range batchCh {
+        t.Log(i, batch)
+        //go func(){
+           for post := range batch.Posts(CORE_2) {
+               t.Log("post:", post)
+        }
+        //}()
+        i++
+    }
+    //<-done
 }
 
