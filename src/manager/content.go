@@ -226,7 +226,7 @@ WHERE Category.name = ? LIMIT %v OFFSET %v`
             } else {
                 extra = category
             }
-            batch := Batch{c.db, finalQuery, extra, i+1, total} // total, postsDone
+            batch := Batch{c.db, finalQuery, extra, i+1} // total, postsDone
             batchCh <- batch
         }
         close(batchCh)

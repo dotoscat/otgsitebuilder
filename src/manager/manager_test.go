@@ -27,7 +27,7 @@ func TestContent(t *testing.T) {
     for batch := range batchCh {
         t.Log(i, batch)
         //go func(){
-           for post := range batch.Posts(CORE_2) {
+           for post := range batch.Posts() {
                t.Log("post:", post)
         }
         //}()
