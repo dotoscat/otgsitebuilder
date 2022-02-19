@@ -27,6 +27,10 @@ type Content struct {
 	pagesPath string
 }
 
+func (c Content) Close() error {
+   return c.db.Close()
+}
+
 /*
 
 func (c Content) Categories() Set {

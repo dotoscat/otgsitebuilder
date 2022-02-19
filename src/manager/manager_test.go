@@ -34,5 +34,8 @@ func TestContent(t *testing.T) {
         i++
     }
     //<-done
+    if err := content.Close(); err != nil {
+        t.Fatal(err)
+    }
 }
 
