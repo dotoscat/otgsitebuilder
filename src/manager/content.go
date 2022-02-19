@@ -118,6 +118,7 @@ func (c Content) GetPageFile(filename string) Page {
 
 //TODO: replace there for concurrent friendly in pagesPath
 // For example you can retrieve all posts in 1 pages or 4
+/*
 func (c Content) GetPosts() []Post {
 	// Index all files if they are not indexed
 
@@ -142,6 +143,7 @@ func (c Content) GetPosts() []Post {
 	}
 	return files
 }
+*/
 
 func (c Content) GetPages() []Page {
 	// Index all files if they are not indexed
@@ -176,7 +178,7 @@ func (c Content) GetPages() []Page {
 const ALL = ""
 
 // GetPostsByCategory returns batch from
-func (c Content) GetPostsByCategory(category string, postsPerPage, nCores int) (<-chan Batch) {
+func (c Content) GetPostsByCategory(category string, postsPerPage) <-chan Batch {
     if postsPerPage <= 0 {
         postsPerPage = 3
     }
@@ -213,7 +215,7 @@ WHERE Category.name = ? LIMIT %v OFFSET %v`
     }
 
     //done := make(chan bool)
-    batchCh := make(chan Batch, nCores)
+    batchCh := make(chan Batch)
     //postsDone := make(chan int)
 
     go func() {
