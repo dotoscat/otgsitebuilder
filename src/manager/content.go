@@ -15,7 +15,7 @@ package manager
 
 import (
     "database/sql"
-    "os"
+    //"os"
     "log"
     "fmt"
     "path/filepath"
@@ -26,6 +26,8 @@ type Content struct {
 	postsPath string
 	pagesPath string
 }
+
+/*
 
 func (c Content) Categories() Set {
 	return newSet("Category", c.db)
@@ -116,7 +118,10 @@ func (c Content) GetPageFile(filename string) Page {
 	return Page{}
 }
 
+*/
+
 //TODO: replace there for concurrent friendly in pagesPath
+// Do not delete yet
 // For example you can retrieve all posts in 1 pages or 4
 /*
 func (c Content) GetPosts() []Post {
@@ -145,6 +150,7 @@ func (c Content) GetPosts() []Post {
 }
 */
 
+/*
 func (c Content) GetPages() []Page {
 	// Index all files if they are not indexed
 
@@ -169,6 +175,7 @@ func (c Content) GetPages() []Page {
 	}
 	return files
 }
+*/
 
 // getPostsByCategory(element, postsPerPage) Batch
 // If element is "", or empty, then return all
@@ -178,7 +185,7 @@ func (c Content) GetPages() []Page {
 const ALL = ""
 
 // GetPostsByCategory returns batch from
-func (c Content) GetPostsByCategory(category string, postsPerPage) <-chan Batch {
+func (c Content) GetPostsByCategory(category string, postsPerPage int) <-chan Batch {
     if postsPerPage <= 0 {
         postsPerPage = 3
     }

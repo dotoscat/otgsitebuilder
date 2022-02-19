@@ -14,11 +14,13 @@
 package manager
 
 import (
-    "database/sql"
-    "strings"
-    "path/filepath"
-    "log"
+    //"database/sql"
+    //"strings"
+    //"path/filepath"
+    //"log"
 )
+
+/*
 
 type Page struct {
 	File
@@ -72,3 +74,4 @@ func (p *Page) FillFromRows(rows *sql.Rows, basePath string) error {
 	p.path = filepath.Join(basePath, p.name)
 	return err
 }
+*/

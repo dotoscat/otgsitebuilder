@@ -14,12 +14,14 @@
 package manager
 
 import (
-    "database/sql"
-    "fmt"
-    "time"
-    "log"
-    "path/filepath"
+    //"database/sql"
+    //"fmt"
+    //"time"
+    //"log"
+    //"path/filepath"
 )
+
+/*
 
 type Post struct {
 	File
@@ -73,3 +75,5 @@ func (p *Post) FillFromRows(rows *sql.Rows, basePath string) error {
 	p.SetPath(filepath.Join(basePath, p.name))
 	return err
 }
+
+*/

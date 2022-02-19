@@ -14,46 +14,18 @@
 package manager
 
 import (
-    "database/sql"
+    // "database/sql"
+    "time"
 )
 
-type Filer interface { //Fil(l)er
-	Fill(*sql.Row, string) error
-	FillFromRows(*sql.Rows, string) error
-	Id() int64
-	Name() string
-	Path() string
-	Header() string
+type Post struct{
+    id      int64
+    name    string
+    date    time.Time
 }
 
-// File is the base struct for Post and Page
-type File struct {
-	id   int64
-	name string
-	path string // deprecated: task to the builder
-	db   *sql.DB
-}
-
-func (f File) Name() string {
-	return f.name
-}
-
-func (f File) Id() int64 {
-	return f.id
-}
-
-func (f File) Path() string {
-	return f.path
-}
-
-func (f *File) setDB(db *sql.DB) {
-	f.db = db
-}
-
-func (f File) IsValid() bool {
-	return f.db != nil
-}
-
-func (f *File) SetPath(path string) {
-	f.path = path
+type Page struct{
+    id      int64
+    name    string
+    reference   string
 }

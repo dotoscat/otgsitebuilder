@@ -15,10 +15,12 @@
 package manager
 
 import (
-	"database/sql"
-	"fmt"
-	"log"
+	//"database/sql"
+	//"fmt"
+	//"log"
 )
+
+/*
 
 // Element represents a member, or row, of the set name which this belongs.
 type Element struct {
@@ -71,3 +73,5 @@ JOIN Category ON Category.name = ? AND Category.id = Category_Post.category_id`
 	}
 	return posts
 }
+
+*/

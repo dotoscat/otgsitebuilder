@@ -14,6 +14,8 @@
 
 package manager
 
+/*
+
 import (
 	"database/sql"
 	"fmt"
@@ -98,3 +100,5 @@ func (s Set) Elements() []Element {
 	}
 	return elements
 }
+
+*/
