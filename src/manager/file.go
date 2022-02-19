@@ -14,45 +14,45 @@
 package manager
 
 import (
-    // "database/sql"
-    "time"
+	// "database/sql"
+	"time"
 )
 
 type File struct {
-    id  int64
-    name string
+	id   int64
+	name string
 }
 
 func (f File) Id() int64 {
-    return f.id
+	return f.id
 }
 
 func (f File) Name() string {
-    return f.name
+	return f.name
 }
 
-type Post struct{
-    file File
-    date    time.Time
+type Post struct {
+	file File
+	date time.Time
 }
 
 func (p Post) File() File {
-    return p.file
+	return p.file
 }
 
 func (p Post) Date() time.Time {
-    return p.date
+	return p.date
 }
 
-type Page struct{
-    file File
-    reference   string
+type Page struct {
+	file      File
+	reference string
 }
 
 func (p Page) File() File {
-    return p.file
+	return p.file
 }
 
 func (p Page) Reference() string {
-    return p.reference
+	return p.reference
 }

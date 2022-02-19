@@ -14,11 +14,11 @@
 package manager
 
 import (
-    "database/sql"
-    //"os"
-    "log"
-    "fmt"
-    "path/filepath"
+	"database/sql"
+	//"os"
+	"fmt"
+	"log"
+	"path/filepath"
 )
 
 type Content struct {
@@ -28,7 +28,7 @@ type Content struct {
 }
 
 func (c Content) Close() error {
-   return c.db.Close()
+	return c.db.Close()
 }
 
 /*
@@ -154,10 +154,9 @@ func (c Content) GetPosts() []Post {
 }
 */
 
-
 func (c Content) GetPages() []Page {
 	// Index all files if they are not indexed
-    /* TODO: Implement the commented part in other method
+	/* TODO: Implement the commented part in other method
 	entries, err := os.ReadDir(c.pagesPath)
 	if err != nil {
 		log.Fatalln(err)
@@ -170,17 +169,17 @@ func (c Content) GetPages() []Page {
 	}*/
 	const QUERY = "SELECT id, name, reference FROM Page"
 	rows, err := c.db.Query(QUERY)
-    if err != nil {
-        log.Fatalln(err)
-    }
+	if err != nil {
+		log.Fatalln(err)
+	}
 	defer rows.Close()
 	files := make([]Page, 0)
 	for rows.Next() {
 		page := Page{}
-        err := rows.Scan(&page.file.id, &page.file.name, &page.reference)
-        if err != nil {
-            log.Fatalln(err)
-        }
+		err := rows.Scan(&page.file.id, &page.file.name, &page.reference)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		files = append(files, page)
 	}
 	return files
@@ -195,62 +194,62 @@ const ALL = ""
 
 // GetPostsByCategory returns batch from
 func (c Content) GetPostsByCategory(category string, postsPerPage int) <-chan Batch {
-    if postsPerPage <= 0 {
-        postsPerPage = 3
-    }
+	if postsPerPage <= 0 {
+		postsPerPage = 3
+	}
 
-    const QUERY_ALL = "SELECT id, name, date FROM Post LIMIT %v OFFSET %v"
-    const QUERY_CATEGORY = `SELECT id, name, date FROM POST
+	const QUERY_ALL = "SELECT id, name, date FROM Post LIMIT %v OFFSET %v"
+	const QUERY_CATEGORY = `SELECT id, name, date FROM POST
 JOIN Category_Post ON Category_Post.post_id = Post.id
 JOIN Category ON Category_Post.category_id = Category.id
 WHERE Category.name = ? LIMIT %v OFFSET %v`
 
-    const QUERY_COUNT = "SELECT count(*) FROM Post"
-    var total int
+	const QUERY_COUNT = "SELECT count(*) FROM Post"
+	var total int
 
-    row := c.db.QueryRow(QUERY_COUNT)
-    if row.Err() != nil {
-        log.Fatalln(row.Err())
-    }
-    if err := row.Scan(&total); err != nil {
-        log.Fatalln(err)
-    }
+	row := c.db.QueryRow(QUERY_COUNT)
+	if row.Err() != nil {
+		log.Fatalln(row.Err())
+	}
+	if err := row.Scan(&total); err != nil {
+		log.Fatalln(err)
+	}
 
-    fmt.Println("total: ", total)
-    nPages := total/postsPerPage
-    if total % postsPerPage > 0 {
-        nPages++
-    }
-    fmt.Println("total pages: ", nPages)
+	fmt.Println("total: ", total)
+	nPages := total / postsPerPage
+	if total%postsPerPage > 0 {
+		nPages++
+	}
+	fmt.Println("total pages: ", nPages)
 
-    var query string
-    if category == ALL {
-        query = QUERY_ALL
-    } else {
-        query = QUERY_CATEGORY
-    }
+	var query string
+	if category == ALL {
+		query = QUERY_ALL
+	} else {
+		query = QUERY_CATEGORY
+	}
 
-    //done := make(chan bool)
-    batchCh := make(chan Batch)
-    //postsDone := make(chan int)
+	//done := make(chan bool)
+	batchCh := make(chan Batch)
+	//postsDone := make(chan int)
 
-    go func() {
+	go func() {
 
-        for i := 0; i < nPages; i++ {
-            finalQuery := fmt.Sprintf(query, postsPerPage, i*postsPerPage)
-            var extra string
-            if category == ALL {
-                extra = ""
-            } else {
-                extra = category
-            }
-            batch := Batch{c.db, finalQuery, extra, i+1} // total, postsDone
-            batchCh <- batch
-        }
-        close(batchCh)
-    }()
+		for i := 0; i < nPages; i++ {
+			finalQuery := fmt.Sprintf(query, postsPerPage, i*postsPerPage)
+			var extra string
+			if category == ALL {
+				extra = ""
+			} else {
+				extra = category
+			}
+			batch := Batch{c.db, finalQuery, extra, i + 1} // total, postsDone
+			batchCh <- batch
+		}
+		close(batchCh)
+	}()
 
-    return batchCh//, done
+	return batchCh //, done
 }
 
 func OpenContent(base string) Content {

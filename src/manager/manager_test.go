@@ -15,27 +15,26 @@
 package manager
 
 import (
-    "testing"
+	"testing"
 )
 
 func TestContent(t *testing.T) {
-    // const CORE_2 = 8
-    content := OpenContent("testdata/content")
-    t.Log("content", content)
-    batchCh := content.GetPostsByCategory(ALL, 3)
-    i := 0
-    for batch := range batchCh {
-        t.Log(i, batch)
-        //go func(){
-           for post := range batch.Posts() {
-               t.Log("post:", post)
-        }
-        //}()
-        i++
-    }
-    //<-done
-    if err := content.Close(); err != nil {
-        t.Fatal(err)
-    }
+	// const CORE_2 = 8
+	content := OpenContent("testdata/content")
+	t.Log("content", content)
+	batchCh := content.GetPostsByCategory(ALL, 3)
+	i := 0
+	for batch := range batchCh {
+		t.Log(i, batch)
+		//go func(){
+		for post := range batch.Posts() {
+			t.Log("post:", post)
+		}
+		//}()
+		i++
+	}
+	//<-done
+	if err := content.Close(); err != nil {
+		t.Fatal(err)
+	}
 }
-
