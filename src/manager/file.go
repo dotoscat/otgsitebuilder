@@ -18,14 +18,41 @@ import (
     "time"
 )
 
+type File struct {
+    id  int64
+    name string
+}
+
+func (f File) Id() int64 {
+    return f.id
+}
+
+func (f File) Name() string {
+    return f.name
+}
+
 type Post struct{
-    id      int64
-    name    string
+    file File
     date    time.Time
 }
 
+func (p Post) File() File {
+    return p.file
+}
+
+func (p Post) Date() time.Time {
+    return p.date
+}
+
 type Page struct{
-    id      int64
-    name    string
+    file File
     reference   string
+}
+
+func (p Page) File() File {
+    return p.file
+}
+
+func (p Page) Reference() string {
+    return p.reference
 }

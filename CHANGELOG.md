@@ -3,6 +3,8 @@
 A static web generator with metadata stored in a local database.
 Hybrid approach.
 
+## [0.3.0]
+
 ## [0.2.0]
 
 ### Added

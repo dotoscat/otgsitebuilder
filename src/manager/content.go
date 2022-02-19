@@ -150,10 +150,10 @@ func (c Content) GetPosts() []Post {
 }
 */
 
-/*
+
 func (c Content) GetPages() []Page {
 	// Index all files if they are not indexed
-
+    /* TODO: Implement the commented part in other method
 	entries, err := os.ReadDir(c.pagesPath)
 	if err != nil {
 		log.Fatalln(err)
@@ -163,19 +163,24 @@ func (c Content) GetPages() []Page {
 			continue
 		}
 		c.GetPageFile(entry.Name()) // This function indexes if the file is not indexed, ignore the return value
-	}
+	}*/
 	const QUERY = "SELECT id, name, reference FROM Page"
 	rows, err := c.db.Query(QUERY)
+    if err != nil {
+        log.Fatalln(err)
+    }
 	defer rows.Close()
 	files := make([]Page, 0)
 	for rows.Next() {
-		page := newPage(c.db)
-		page.FillFromRows(rows, c.pagesPath)
+		page := Page{}
+        err := rows.Scan(&page.file.id, &page.file.name, &page.reference)
+        if err != nil {
+            log.Fatalln(err)
+        }
 		files = append(files, page)
 	}
 	return files
 }
-*/
 
 // getPostsByCategory(element, postsPerPage) Batch
 // If element is "", or empty, then return all
