@@ -154,6 +154,51 @@ func (c Content) GetPosts() []Post {
 }
 */
 
+func (c Content) IndexFiles() (bool, error) {
+    return false, nil
+}
+
+func (c Content) is(query, name string) (bool, error) {
+    row := c.db.QueryRow(query, name)
+    if row.Err() != nil {
+        return false, row.Err()
+    }
+    var exists int64
+    if err := row.Scan(&exists); err != nil {
+        return false, err
+    }
+    if exists == 1 {
+        return true, nil
+    }
+    return false, nil
+}
+
+func (c Content) IsPost(name string) (bool, error) {
+    const QUERY = "SELECT EXISTS (SELECT name FROM Post WHERE name = ?)"
+    return c.is(QUERY, name)
+}
+
+func (c Content) IsPage(name string) (bool, error) {
+    const QUERY = "SELECT EXISTS (SELECT name FROM Page WHERE name = ?)"
+    return c.is(QUERY, name)
+}
+
+func (c Content) GetPost(name string) (Post, error) {
+    return Post{}, nil
+}
+
+func (c Content) GetPage(name string) (Page, error) {
+    return Page{}, nil
+}
+
+func (c Content) ModifyPost(name string, options FileOption) (bool, error) {
+    return false, nil
+}
+
+func (c Content) ModifyPage(name string, options FileOption) (bool, error) {
+    return false, nil
+}
+
 func (c Content) GetPages() []Page {
 	// Index all files if they are not indexed
 	/* TODO: Implement the commented part in other method

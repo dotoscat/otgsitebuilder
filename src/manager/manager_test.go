@@ -18,7 +18,8 @@ import (
 	"testing"
 )
 
-func TestContent(t *testing.T) {
+// list posts from the database
+func TestPosts(t *testing.T) {
 	// const CORE_2 = 8
 	content := OpenContent("testdata/content")
 	t.Log("content", content)
@@ -37,4 +38,21 @@ func TestContent(t *testing.T) {
 	if err := content.Close(); err != nil {
 		t.Fatal(err)
 	}
+}
+
+// Retrieve a single post from content
+func TestPost(t *testing.T) {
+	content := OpenContent("testdata/content")
+    if exists, err := content.IsPost("one.md"); err != nil {
+        t.Fatal(err)
+    } else {
+        t.Log(exists)
+    }
+
+    if exists, err := content.IsPost("foo.md"); err != nil {
+        t.Fatal(err)
+    } else if exists == true {
+        t.Fatal("'foo.md' must not exists.")
+    }
+
 }
