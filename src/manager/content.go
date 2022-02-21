@@ -183,12 +183,30 @@ func (c Content) IsPage(name string) (bool, error) {
     return c.is(QUERY, name)
 }
 
+func (c Content) get(query, name string, dest ...interface{}) error {
+    row := c.db.QueryRow(query, name)
+    if row.Err() != nil {
+        return row.Err()
+    }
+    if err := row.Scan(dest...); err != nil {
+        return err
+    }
+    return nil
+}
+
 func (c Content) GetPost(name string) (Post, error) {
-    return Post{}, nil
+    const QUERY = "SELECT id, name, date FROM Post WHERE name = ?"
+    post := Post{}
+    err := c.get(QUERY, name, &post.file.id, &post.file.name, &post.date)
+    fmt.Println("GetPost", post)
+    return post, err
 }
 
 func (c Content) GetPage(name string) (Page, error) {
-    return Page{}, nil
+    const QUERY = "SELECT id, name, reference FROM Page WHERE name = ?"
+    page := Page{}
+    err := c.get(QUERY, name, &page.file.id, &page.file.name, &page.reference)
+    return page, err
 }
 
 func (c Content) ModifyPost(name string, options FileOption) (bool, error) {

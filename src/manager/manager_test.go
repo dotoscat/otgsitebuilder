@@ -45,10 +45,11 @@ func TestPost(t *testing.T) {
 	content := OpenContent("testdata/content")
     if exists, err := content.IsPost("one.md"); err != nil {
         t.Fatal(err)
-    } else {
-        t.Log(exists)
+    } else if post, err := content.GetPost("one.md"); exists == true {
+        t.Log("exists? ", exists, ", prove it: ", post)
+    } else if err != nil {
+        t.Fatal(err)
     }
-
     if exists, err := content.IsPost("foo.md"); err != nil {
         t.Fatal(err)
     } else if exists == true {
