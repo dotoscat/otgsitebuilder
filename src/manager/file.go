@@ -56,3 +56,10 @@ func (p Page) File() File {
 func (p Page) Reference() string {
 	return p.reference
 }
+
+type FileOption struct{
+    ChangeDate  bool
+    Date time.Time
+    ChangeReference bool
+    Reference string
+}
