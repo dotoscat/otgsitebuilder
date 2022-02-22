@@ -171,7 +171,7 @@ func (c Content) index(table, sourcePath string) error {
             fmt.Println(entry.Name(), "indexed!")
             continue
         }
-        QUERY := fmt.Sprintf("INSERT INTO %v (?) VALUES (name)", table)
+        QUERY := fmt.Sprintf("INSERT INTO %v (name) VALUES (?)", table)
         if result, err := c.db.Exec(QUERY, entry.Name()); err != nil {
             return err
         } else if _, err := result.LastInsertId(); err != nil {
