@@ -16,7 +16,17 @@ package manager
 
 import (
 	"testing"
+    "os"
+    "io/fs"
 )
+
+func copyFile(src, dst string) error {
+    content, err := os.ReadFile(src)
+    if err != nil {
+        return err
+    }
+    return os.WriteFile(dst, content, fs.ModePerm)
+}
 
 // list posts from the database
 func TestPosts(t *testing.T) {
@@ -63,4 +73,11 @@ func TestIndex (t *testing.T) {
     if err := content.IndexPosts(); err != nil {
         t.Fatal(err)
     }
+    t.Log("Final indexed files")
+    for batch := range content.GetPostsByCategory(ALL, 1) {
+        for post := range batch.Posts() {
+            t.Log("Final indexed post: ", post)
+        }
+    }
+    copyFile("testdata/content/.metadata.old.db", "testdata/content/.metadata.db")
 }
