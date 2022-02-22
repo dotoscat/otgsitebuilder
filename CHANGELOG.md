@@ -5,6 +5,14 @@ Hybrid approach.
 
 ## [0.3.0]
 
+### Added
+
+* Tests for management
+
+### Removed
+
+* Set, Post and Page types from manager package
+
 ## [0.2.0]
 
 ### Added
