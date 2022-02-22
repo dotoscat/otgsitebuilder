@@ -32,7 +32,21 @@ func (c Content) Close() error {
 }
 
 func (c Content ) Categories() ([]string, error) {
-    return []string{}, nil
+    const QUERY = "SELECT name FROM Category"
+    categories := make([]string, 0)
+    rows, err := c.db.Query(QUERY)
+    defer rows.Close()
+    if err != nil {
+        return categories, err
+    }
+    var name string
+    for rows.Next() {
+        if err := rows.Scan(&name); err != nil {
+            return categories, err
+        }
+        categories = append(categories, name)
+    }
+    return categories, nil
 }
 
 func (c Content) index(table, sourcePath string) error {

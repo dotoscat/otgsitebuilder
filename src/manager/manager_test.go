@@ -81,3 +81,15 @@ func TestIndex (t *testing.T) {
     }
     copyFile("testdata/content/.metadata.old.db", "testdata/content/.metadata.db")
 }
+
+func TestCategories(t *testing.T) {
+	content := OpenContent("testdata/content")
+    t.Log("Categories:")
+    if categories, err := content.Categories(); err != nil {
+        t.Fatal(err)
+    } else {
+        for _, category := range categories {
+            t.Log(category)
+        }
+    }
+}
