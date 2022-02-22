@@ -15,7 +15,7 @@ package manager
 
 import (
 	"database/sql"
-	//"os"
+	"os"
 	"fmt"
 	"log"
 	"path/filepath"
@@ -154,11 +154,46 @@ func (c Content) GetPosts() []Post {
 }
 */
 
+func (c Content) index(table, sourcePath string) error {
+    entries, err := os.ReadDir(sourcePath)
+	if err != nil {
+        return err
+	}
+	QUERY := fmt.Sprintf("SELECT EXISTS (SELECT name FROM %v WHERE name = ?)", table)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		fmt.Println("Index: ", entry.Name())
+        if exists, err := c.exists(QUERY, entry.Name()); err != nil {
+            return err
+        } else if exists == true {
+            fmt.Println(entry.Name(), "indexed!")
+            continue
+        }
+        QUERY := fmt.Sprintf("INSERT INTO %v (?) VALUES (name)", table)
+        if result, err := c.db.Exec(QUERY, entry.Name()); err != nil {
+            return err
+        } else if _, err := result.LastInsertId(); err != nil {
+            return err
+        }
+	}
+	return nil
+}
+
+func (c Content) IndexPosts() error {
+    return c.index("Post", c.postsPath)
+}
+
+func (c Content) IndexPages() error {
+    return c.index("Page", c.pagesPath)
+}
+
 func (c Content) IndexFiles() (bool, error) {
     return false, nil
 }
 
-func (c Content) is(query, name string) (bool, error) {
+func (c Content) exists(query, name string) (bool, error) {
     row := c.db.QueryRow(query, name)
     if row.Err() != nil {
         return false, row.Err()
@@ -175,12 +210,12 @@ func (c Content) is(query, name string) (bool, error) {
 
 func (c Content) IsPost(name string) (bool, error) {
     const QUERY = "SELECT EXISTS (SELECT name FROM Post WHERE name = ?)"
-    return c.is(QUERY, name)
+    return c.exists(QUERY, name)
 }
 
 func (c Content) IsPage(name string) (bool, error) {
     const QUERY = "SELECT EXISTS (SELECT name FROM Page WHERE name = ?)"
-    return c.is(QUERY, name)
+    return c.exists(QUERY, name)
 }
 
 func (c Content) get(query, name string, dest ...interface{}) error {

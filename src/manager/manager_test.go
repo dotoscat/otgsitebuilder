@@ -57,3 +57,10 @@ func TestPost(t *testing.T) {
     }
 
 }
+
+func TestIndex (t *testing.T) {
+	content := OpenContent("testdata/content")
+    if err := content.IndexPosts(); err != nil {
+        t.Fatal(err)
+    }
+}
