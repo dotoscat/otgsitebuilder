@@ -139,8 +139,23 @@ func (c Content) GetPage(name string) (Page, error) {
     return page, err
 }
 
-func (c Content) ModifyPost(name string, options FileOption) (bool, error) {
-    return false, nil
+func (c Content) ModifyPost(name string, options FileOption) error {
+    column := ""
+    if options.ChangeDate == true {
+        column = "date"
+    }
+    if column == "date" {
+        query := "UPDATE FROM Post (date) VALUES (?) WHERE name = ?"
+        result, err := c.db.Exec(query, options.Date, name)
+        if err != nil {
+            return err
+        }
+        if _, err := result.RowsAffected(); err != nil {
+            return err
+        }
+    }
+    // Add/remove categories to this post
+    return nil
 }
 
 func (c Content) ModifyPage(name string, options FileOption) (bool, error) {
