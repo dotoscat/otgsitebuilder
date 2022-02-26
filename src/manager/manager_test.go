@@ -74,7 +74,7 @@ func TestIndex (t *testing.T) {
         t.Fatal(err)
     }
     t.Log("Final indexed files")
-    for batch := range content.GetPostsByCategory(ALL, 1) {
+    for batch := range content.GetPostsByCategory(ALL, SINGLE_PAGE) {
         for post := range batch.Posts() {
             t.Log("Final indexed post: ", post)
         }
@@ -92,4 +92,13 @@ func TestCategories(t *testing.T) {
             t.Log(category)
         }
     }
+}
+
+func TestPostsCategory(t *testing.T) {
+	content := OpenContent("testdata/content")
+    page := content.GetPostsByCategory("Second Cat", SINGLE_PAGE)
+    for page := range page {
+    for post := range page.Posts() {
+        t.Log(post)
+    }}
 }

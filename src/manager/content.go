@@ -182,18 +182,20 @@ func (c Content) GetPages() []Page {
 }
 
 const ALL = ""
+const SINGLE_PAGE = 0
 
 // GetPostsByCategory returns batch from
 func (c Content) GetPostsByCategory(category string, postsPerPage int) <-chan Batch {
-	if postsPerPage <= 0 {
-		postsPerPage = 3
+	if postsPerPage < 0 {
+		postsPerPage = SINGLE_PAGE
 	}
-
-	const QUERY_ALL = "SELECT id, name, date FROM Post LIMIT %v OFFSET %v"
-	const QUERY_CATEGORY = `SELECT id, name, date FROM POST
+    // The query base is single page. Add MULTIPLE_PAGE at them.
+	const QUERY_ALL = "SELECT Post.id, Post.name, Post.date FROM Post"
+	const QUERY_CATEGORY = `SELECT Post.id, Post.name, Post.date FROM Post
 JOIN Category_Post ON Category_Post.post_id = Post.id
 JOIN Category ON Category_Post.category_id = Category.id
-WHERE Category.name = ? LIMIT %v OFFSET %v`
+WHERE Category.name = ?`
+    const MULTIPLE_PAGE  = " LIMIT %v OFFSET %v"
 
 	const QUERY_COUNT = "SELECT count(*) FROM Post"
 	var total int
@@ -207,18 +209,27 @@ WHERE Category.name = ? LIMIT %v OFFSET %v`
 	}
 
 	fmt.Println("total: ", total)
-	nPages := total / postsPerPage
-	if total%postsPerPage > 0 {
+    nPages := 0
+    if postsPerPage != SINGLE_PAGE {
+        nPages = total / postsPerPage
+    } else {
+        nPages = 1
+    }
+	if postsPerPage != SINGLE_PAGE && total%postsPerPage > 0 {
 		nPages++
 	}
 	fmt.Println("total pages: ", nPages)
 
 	var query string
-	if category == ALL {
+	if category == ALL && postsPerPage == SINGLE_PAGE{
 		query = QUERY_ALL
-	} else {
+    } else if category == ALL && postsPerPage != SINGLE_PAGE {
+        query = QUERY_ALL+MULTIPLE_PAGE
+	} else if category != ALL && postsPerPage == SINGLE_PAGE {
 		query = QUERY_CATEGORY
-	}
+	} else if category != ALL && postsPerPage != SINGLE_PAGE {
+        query = QUERY_CATEGORY+MULTIPLE_PAGE
+    }
 
 	//done := make(chan bool)
 	batchCh := make(chan Batch)
@@ -227,7 +238,12 @@ WHERE Category.name = ? LIMIT %v OFFSET %v`
 	go func() {
 
 		for i := 0; i < nPages; i++ {
-			finalQuery := fmt.Sprintf(query, postsPerPage, i*postsPerPage)
+            var finalQuery string
+            if postsPerPage == SINGLE_PAGE{
+                finalQuery = query
+            } else {
+                finalQuery = fmt.Sprintf(query, postsPerPage, i*postsPerPage)
+            }
 			var extra string
 			if category == ALL {
 				extra = ""
