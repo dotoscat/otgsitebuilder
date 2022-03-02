@@ -62,4 +62,6 @@ type FileOption struct{
     Date time.Time
     ChangeReference bool
     Reference string
+    AddCategories []string
+    RemoveCategories []string
 }

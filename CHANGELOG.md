@@ -7,11 +7,17 @@ Hybrid approach.
 
 ### Added
 
-* Tests for management
+* Tests for management.
 
 ### Removed
 
-* Set, Post and Page types from manager package
+* Set, Post and Page types from manager package.
+
+### Changed
+
+* General manager package refactorization.
+* The manager gives you batches of posts, like pages.
+* Posts are accesed by batches from the manager package.
 
 ## [0.2.0]
 

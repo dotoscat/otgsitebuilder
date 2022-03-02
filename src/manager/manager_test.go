@@ -28,6 +28,10 @@ func copyFile(src, dst string) error {
     return os.WriteFile(dst, content, fs.ModePerm)
 }
 
+func restoreDatabase() {
+    copyFile("testdata/content/.metadata.old.db", "testdata/content/.metadata.db")
+}
+
 // list posts from the database
 func TestPosts(t *testing.T) {
 	// const CORE_2 = 8
@@ -79,7 +83,7 @@ func TestIndex (t *testing.T) {
             t.Log("Final indexed post: ", post)
         }
     }
-    copyFile("testdata/content/.metadata.old.db", "testdata/content/.metadata.db")
+    restoreDatabase()
 }
 
 func TestCategories(t *testing.T) {
@@ -102,3 +106,14 @@ func TestPostsCategory(t *testing.T) {
         t.Log(post)
     }}
 }
+
+func TestOptionPost(t *testing.T) {
+	content := OpenContent("testdata/content")
+    options := FileOption{}
+    options.RemoveCategories = []string{"Second Cat", "Third Cat", "meow"}
+    if err := content.ModifyPost("one.md", options); err != nil {
+        t.Fatal(err)
+    }
+    restoreDatabase()
+}
+

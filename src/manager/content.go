@@ -154,7 +154,42 @@ func (c Content) ModifyPost(name string, options FileOption) error {
             return err
         }
     }
+    const QUERY_DELETE = `
+    DELETE FROM Category_Post
+WHERE Category_Post.category_id IN (SELECT id FROM Category WHERE name IN (%v))
+AND Category_Post.post_id = (SELECT id FROM Post WHERE name = ?)`
+
+    toQueryParameters := func(list []string) string {
+        parameters := ""
+        for i, parameter := range list {
+            if i == 0 {
+                parameters = fmt.Sprintf("'%v'", parameter)
+                continue
+            }
+            parameters = parameters + fmt.Sprintf(", '%v'", parameter)
+        }
+        return parameters
+    }
+
+    if len(options.RemoveCategories) > 0 {
+        parameters := toQueryParameters(options.RemoveCategories)
+        finalQuery := fmt.Sprintf(QUERY_DELETE, parameters)
+        fmt.Println("final query parameters: ", finalQuery)
+        if _, err := c.db.Exec(finalQuery, name); err != nil {
+            return err
+        }
+    }
     // Add/remove categories to this post
+    /*
+    if len(options.AddCategories) > 0 {
+        parameters := toQueryParameters(options.AddCategories)
+        finalQuery := fmt.Sprintf(QUERY_DELETE, parameters)
+        fmt.Println("final query parameters: ", finalQuery)
+        if _, err := c.db.Exec(finalQuery, ...options.RemoveCategories); err != nil {
+            return err
+        }
+    }
+    */
     return nil
 }
 
