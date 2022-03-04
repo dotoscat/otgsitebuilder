@@ -179,17 +179,19 @@ AND Category_Post.post_id = (SELECT id FROM Post WHERE name = ?)`
             return err
         }
     }
-    // Add/remove categories to this post
-    /*
+    const QUERY_INSERT = `
+    INSERT INTO Category_Post
+SELECT Category.id, Post.id FROM Post
+JOIN Category ON Category.name IN (%v)
+WHERE Post.name = ?`;
     if len(options.AddCategories) > 0 {
         parameters := toQueryParameters(options.AddCategories)
-        finalQuery := fmt.Sprintf(QUERY_DELETE, parameters)
+        finalQuery := fmt.Sprintf(QUERY_INSERT, parameters)
         fmt.Println("final query parameters: ", finalQuery)
-        if _, err := c.db.Exec(finalQuery, ...options.RemoveCategories); err != nil {
+        if _, err := c.db.Exec(finalQuery, name); err != nil {
             return err
         }
     }
-    */
     return nil
 }
 

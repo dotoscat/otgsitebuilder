@@ -114,6 +114,9 @@ func TestOptionPost(t *testing.T) {
     if err := content.ModifyPost("one.md", options); err != nil {
         t.Fatal(err)
     }
+    optionsSecond := FileOption{AddCategories: []string{"Second Cat", "Third Cat", "MEOW"}}
+    if err := content.ModifyPost("two.md", optionsSecond); err != nil {
+        t.Fatal(err)
+    }
     restoreDatabase()
 }
-
