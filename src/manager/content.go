@@ -195,8 +195,18 @@ WHERE Post.name = ?`;
     return nil
 }
 
-func (c Content) ModifyPage(name string, options FileOption) (bool, error) {
-    return false, nil
+func (c Content) ModifyPage(name string, options FileOption) error {
+    if (options.ChangeReference == true) {
+        query := "UPDATE FROM Page (reference) VALUES (?) WHERE name = ?"
+        result, err := c.db.Exec(query, options.Reference, name)
+        if err != nil {
+            return err
+        }
+        if _, err := result.RowsAffected(); err != nil {
+            return err
+        }
+    }
+    return nil
 }
 
 func (c Content) GetPages() []Page {
