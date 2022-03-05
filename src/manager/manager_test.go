@@ -141,7 +141,13 @@ func TestModifyPage(t *testing.T) {
 }
 
 func TestIndexPages(t *testing.T) {
-
+	content := OpenContent("testdata/content")
+    if err := content.IndexPages(); err != nil {
+        t.Fatal(err)
+    }
+    for _, page := range content.GetPages() {
+        t.Log(page)
+    }
 }
 
 // Check create content and add something
