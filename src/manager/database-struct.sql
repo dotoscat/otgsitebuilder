@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Page (
     name      VARCHAR (255) UNIQUE
                             NOT NULL,
     reference VARCHAR (255) DEFAULT ""
+                            NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Post (

@@ -84,10 +84,6 @@ func (c Content) IndexPages() error {
     return c.index("Page", c.pagesPath)
 }
 
-func (c Content) IndexFiles() (bool, error) {
-    return false, nil
-}
-
 func (c Content) exists(query, name string) (bool, error) {
     row := c.db.QueryRow(query, name)
     if row.Err() != nil {
@@ -145,7 +141,7 @@ func (c Content) ModifyPost(name string, options FileOption) error {
         column = "date"
     }
     if column == "date" {
-        query := "UPDATE FROM Post (date) VALUES (?) WHERE name = ?"
+        query := "UPDATE Post SET date = ? WHERE name = ?"
         result, err := c.db.Exec(query, options.Date, name)
         if err != nil {
             return err
@@ -197,8 +193,8 @@ WHERE Post.name = ?`;
 
 func (c Content) ModifyPage(name string, options FileOption) error {
     if (options.ChangeReference == true) {
-        query := "UPDATE FROM Page (reference) VALUES (?) WHERE name = ?"
-        result, err := c.db.Exec(query, options.Reference, name)
+        const QUERY = "UPDATE Page SET reference = ? WHERE name = ?"
+        result, err := c.db.Exec(QUERY, options.Reference, name)
         if err != nil {
             return err
         }

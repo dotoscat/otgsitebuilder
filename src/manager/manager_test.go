@@ -120,3 +120,28 @@ func TestOptionPost(t *testing.T) {
     }
     restoreDatabase()
 }
+
+func TestPages(t *testing.T) {
+	content := OpenContent("testdata/content")
+    for _, page := range content.GetPages() {
+        t.Log(page)
+    }
+}
+
+func TestModifyPage(t *testing.T) {
+	content := OpenContent("testdata/content")
+    options := FileOption{ChangeReference: true, Reference: "the one"}
+    if err := content.ModifyPage("page3.md", options); err != nil {
+        t.Fatal(err)
+    }
+    for _, page := range content.GetPages() {
+        t.Log(page)
+    }
+    restoreDatabase()
+}
+
+func TestIndexPages(t *testing.T) {
+
+}
+
+// Check create content and add something
