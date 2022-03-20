@@ -14,6 +14,8 @@
 
 package builder
 
+/*
+
 import (
 	"fmt"
 )
@@ -53,3 +55,5 @@ func NewPostsPages(postsPerPage int, posts []PostWriting, base string) PostsPage
 	fmt.Println("nPages:", nPages, ";extraPage:", extraPage)
 	return postsPages
 }
+
+*/

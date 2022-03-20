@@ -25,6 +25,7 @@ type Batch struct {
 	query      string
 	queryExtra string
 	i          int
+	totalPages int
 	// postsDone chan int
 	// totalPosts int
 	// done chan bool
@@ -32,6 +33,10 @@ type Batch struct {
 
 func (b Batch) Index() int {
 	return b.i
+}
+
+func (b Batch) TotalPages() int {
+    return b.totalPages
 }
 
 func (b Batch) Posts() <-chan Post {

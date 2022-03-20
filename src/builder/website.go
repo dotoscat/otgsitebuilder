@@ -14,6 +14,8 @@
 
 package builder
 
+/*
+
 import (
 	"fmt"
 
@@ -137,3 +139,5 @@ func NewWebsite(title string, postsPerPage int, posts []manager.Post, pages []ma
 	license := content.License()
 	return Website{postsPages, postsWritings, websitePages, categories, title, "", license}
 }
+
+*/

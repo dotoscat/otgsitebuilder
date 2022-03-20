@@ -14,6 +14,8 @@
 
 package builder
 
+/*
+
 import (
 	"fmt"
 	"log"
@@ -122,3 +124,4 @@ func (w Writing) RenderPartialContent(n int) string {
 	}
 	return content[:n]
 }
+*/

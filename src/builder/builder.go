@@ -22,7 +22,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
+	//"text/template"
+
+
+	"github.com/dotoscat/otgsitebuilder/src/manager"
+
 )
 
 //go:embed templates/base.tmpl
@@ -37,24 +41,69 @@ var WritingTemplates embed.FS
 //go:embed templates/setpage.tmpl
 var SetTemplates embed.FS
 
-type PostWritingContext struct {
-	Writing PostWriting
-	Website Website
+type Website struct {
+    Title string
+    Style string
+    License string
 }
 
-type WritingContext struct {
-	Writing Writing
-	Website Website
+func NewWebsite(c manager.Content) Website {
+    title := c.Title()
+    license := c.License()
+    return Website{title, "", license}
 }
 
-type PostsPageContext struct {
-	CurrentPage PostsPage
-	Website     Website
+func (w Website) HasStyle() bool {
+    return w.Style != ""
 }
 
-type SetPageContext struct {
-	ElementPage ElementPage
-	Website     Website
+type Webpage struct {
+    Website Website
+    Url string
+}
+
+type Page struct {
+    Webpage Webpage
+    Page manager.Page
+}
+
+type Post struct {
+    Webpage Webpage
+    Post manager.Post
+}
+
+type PostsPage struct {
+    Webpage Webpage
+    batch manager.Batch
+    BaseName string // host/pages/BaseName><batch.Index>.html
+    Posts []Post
+}
+
+func NewPostsPage(website Website, batch manager.Batch, pathPrefix, baseName string) PostsPage {
+    postsPage := PostsPage{
+        Webpage: Webpage {
+            Website: website,
+            Url: filepath.Join(pathPrefix, baseName + fmt.Sprint(batch.Index()) + ".html"),
+        },
+        batch: batch,
+        BaseName: baseName,
+    }
+    return postsPage
+}
+
+func (p PostsPage) HasNext() bool {
+    return p.batch.Index() < p.batch.TotalPages()
+}
+
+func (p PostsPage) NextUrl() string {
+    if p.HasNext() == false {
+        return ""
+    }
+    return ""//TODO
+}
+
+func (p PostsPage) HasPrevious() bool {
+    return p.batch.Index() > 1
 }
 
 func Mkdir(base, ext string) {
@@ -104,6 +153,8 @@ func CopyDir(src, dst string) {
 
 }
 
+/*
+
 func WriteWriting(website Website, writing Writinger, outputPath string, template *template.Template) {
 	outputWritingPath := filepath.Join(outputPath, writing.Url())
 	fmt.Println("output writing path:", outputWritingPath)
@@ -134,3 +185,5 @@ func WriteWriting(website Website, writing Writinger, outputPath string, templat
 	}
 	fmt.Println("done writing:", writing)
 }
+
+*/

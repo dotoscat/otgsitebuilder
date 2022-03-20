@@ -293,7 +293,7 @@ WHERE Category.name = ?`
 			} else {
 				extra = category
 			}
-			batch := Batch{c.db, finalQuery, extra, i + 1} // total, postsDone
+			batch := Batch{c.db, finalQuery, extra, i + 1, nPages} // total, postsDone
 			batchCh <- batch
 		}
 		close(batchCh)

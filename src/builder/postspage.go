@@ -14,6 +14,7 @@
 
 package builder
 
+/*
 //PostsPage stores info about the PostsPages which it belongs, index,
 //a list of writings related to this PostsPage and its url.
 type PostsPage struct {
@@ -72,3 +73,4 @@ func (p *PostsPage) addWriting(writing PostWriting) PostWriting {
 	p.writings = append(p.writings, writing)
 	return writing
 }
+*/
