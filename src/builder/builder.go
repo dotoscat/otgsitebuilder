@@ -20,6 +20,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+    "path"
 	"path/filepath"
 	"strings"
 	//"text/template"
@@ -45,12 +46,22 @@ type Website struct {
     Title string
     Style string
     License string
+    CategoriesUrl map[string]string
 }
 
-func NewWebsite(c manager.Content) Website {
-    title := c.Title()
-    license := c.License()
-    return Website{title, "", license}
+func NewWebsite(content manager.Content) Website {
+    title := content.Title()
+    license := content.License()
+    categories := make(map[string]string)
+    contentCategories, err := content.Categories()
+    if err != nil {
+        log.Fatalln(err)
+    }
+    for _, category := range contentCategories {
+        url := "/" + strings.Join([]string{strings.ReplaceAll(category, " ", "-"), "page1.html"}, "/")
+        categories[category] = url
+    }
+    return Website{title, "", license, categories}
 }
 
 func (w Website) HasStyle() bool {
@@ -75,18 +86,28 @@ type Post struct {
 type PostsPage struct {
     Webpage Webpage
     batch manager.Batch
-    BaseName string // host/pages/BaseName><batch.Index>.html
+    pathPrefix string
     Posts []Post
+    firstPageAsIndex bool
 }
 
-func NewPostsPage(website Website, batch manager.Batch, pathPrefix, baseName string) PostsPage {
+func NewPostsPage(website Website, batch manager.Batch,
+                  pathPrefix string,
+                  firstPageAsIndex bool) PostsPage {
+    var url string
+    if firstPageAsIndex == true && batch.Index() == 1 {
+        url = "/index.html"
+    } else {
+        url = filepath.Join(pathPrefix, "page" + fmt.Sprint(batch.Index()) + ".html")
+    }
     postsPage := PostsPage{
         Webpage: Webpage {
             Website: website,
-            Url: filepath.Join(pathPrefix, baseName + fmt.Sprint(batch.Index()) + ".html"),
+            Url: url,
         },
         batch: batch,
-        BaseName: baseName,
+        pathPrefix: pathPrefix,
+        firstPageAsIndex: firstPageAsIndex,
     }
     return postsPage
 }
@@ -99,11 +120,22 @@ func (p PostsPage) NextUrl() string {
     if p.HasNext() == false {
         return ""
     }
-    return ""//TODO
+    return path.Join("/", p.pathPrefix, "page" + fmt.Sprint(p.batch.Index() + 1) + ".html")
 }
 
 func (p PostsPage) HasPrevious() bool {
     return p.batch.Index() > 1
+}
+
+func (p PostsPage) PreviousUrl() string {
+    index := p.batch.Index()
+    if p.HasPrevious() == false {
+        return ""
+    }
+    if index - 1 == 1 && p.firstPageAsIndex == true {
+        return "/index.html"
+    }
+    return path.Join("/", p.pathPrefix, "page" + fmt.Sprint(p.batch.Index() - 1) + ".html")
 }
 
 func Mkdir(base, ext string) {
