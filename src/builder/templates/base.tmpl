@@ -3,22 +3,24 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        {{ if .Website.HasStyle }}
-        <link href="{{ .Website.Style }}" rel="stylesheet">
+        {{ if .Webpage.Website.HasStyle }}
+        <link href="{{ .Webpage.Website.Style }}" rel="stylesheet">
         {{ end }}
-        <title>{{ .Website.Title }}</title>
+        <title>{{ .Webpage.Website.Title }}</title>
     </head>
     <body>
         <header>
-            <h1><a href="/">{{ .Website.Title }}</a></h1>
+            <h1><a href="/">{{ .Webpage.Website.Title }}</a></h1>
+            <!--
             <nav id="pages">
-                <ul>{{ range .Website.Pages }}
-                    <li><a href="{{ .Url }}">{{ .RenderHeader }}</a></li>{{ end }}
+                <ul>{{/* range .Website.Pages */}}
+                    <li><a href="{{/* .Url */}}">{{/* .RenderHeader */}}</a></li>{{/* end */}}
                 </ul>
             </nav>
+            -->
             <nav id="categories">
-                <ul>{{ range .Website.Categories }}
-                    <li><a href="{{ .Url }}">{{ .Name }}</a></li>{{ end }}
+                <ul>{{ range .Webpage.Website.CategoriesUrl }}
+                    <li><a href="{{ .Url }}">{{ .Category }}</a></li>{{ end }}
                 </ul>
             </nav>
         </header>
@@ -27,7 +29,7 @@
         {{ end }}
         </main>
         <footer>
-            {{ .Website.License }}
+            {{ .Webpage.Website.License }}
         </footer>
     </body>
 </html>

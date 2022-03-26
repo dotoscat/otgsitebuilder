@@ -42,24 +42,29 @@ var WritingTemplates embed.FS
 //go:embed templates/setpage.tmpl
 var SetTemplates embed.FS
 
+type CategoryUrl struct {
+    Category string
+    Url string
+}
+
 type Website struct {
     Title string
     Style string
     License string
-    CategoriesUrl map[string]string
+    CategoriesUrl []CategoryUrl
 }
 
 func NewWebsite(content manager.Content) Website {
     title := content.Title()
     license := content.License()
-    categories := make(map[string]string)
+    categories := make([]CategoryUrl, 0)
     contentCategories, err := content.Categories()
     if err != nil {
         log.Fatalln(err)
     }
     for _, category := range contentCategories {
         url := "/" + strings.Join([]string{strings.ReplaceAll(category, " ", "-"), "page1.html"}, "/")
-        categories[category] = url
+        categories = append(categories, CategoryUrl{category, url})
     }
     return Website{title, "", license, categories}
 }
@@ -87,9 +92,10 @@ type PostsPage struct {
     Webpage Webpage
     batch manager.Batch
     pathPrefix string
-    Posts []Post
     firstPageAsIndex bool
 }
+
+
 
 func NewPostsPage(website Website, batch manager.Batch,
                   pathPrefix string,
@@ -110,6 +116,10 @@ func NewPostsPage(website Website, batch manager.Batch,
         firstPageAsIndex: firstPageAsIndex,
     }
     return postsPage
+}
+
+func (p PostsPage) Posts() <-chan manager.Post {
+    return p.batch.Posts()
 }
 
 func (p PostsPage) HasNext() bool {
