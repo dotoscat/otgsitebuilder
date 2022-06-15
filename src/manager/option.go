@@ -123,6 +123,7 @@ func (c Content) SetOutput(output string) error {
 //Output returns the output path where the website is builded
 func (c Content) Output() string {
 	const QUERY = "SELECT output FROM Option"
+    var output string
 	row := c.db.QueryRow(QUERY)
 	if err := row.Scan(&output); err == sql.ErrNoRows {
 		c.generateDefaultValues()
@@ -130,5 +131,5 @@ func (c Content) Output() string {
 	} else if err != nil {
 		log.Fatalln(err)
 	}
-	return ""
+	return output
 }

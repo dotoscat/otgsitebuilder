@@ -93,7 +93,7 @@ func NewWebsite(content manager.Content) Website {
         License: license,
         CategoriesUrl: categories,
         PagesUrl: pages,
-        Output: output
+        Output: output,
     }
 }
 
@@ -101,8 +101,9 @@ func (w Website) HasStyle() bool {
     return w.Style != ""
 }
 
-func (w Website) Render() {
-    // index
+func (w Website) Render(destination string) string {
+    root := filepath.Join(destination, w.Output)
+    return root
 }
 
 type Webpage struct {
