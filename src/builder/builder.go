@@ -25,9 +25,7 @@ import (
 	"strings"
 	//"text/template"
 
-
 	"github.com/dotoscat/otgsitebuilder/src/manager"
-
 )
 
 //go:embed templates/base.tmpl
@@ -47,11 +45,18 @@ type CategoryUrl struct {
     Url string
 }
 
+type PageUrl struct {
+    Reference string
+    Url string
+}
+
 type Website struct {
     Title string
     Style string
     License string
     CategoriesUrl []CategoryUrl
+    PagesUrl []PageUrl
+    Output string
 }
 
 func NewWebsite(content manager.Content) Website {
@@ -66,11 +71,38 @@ func NewWebsite(content manager.Content) Website {
         url := "/" + strings.Join([]string{strings.ReplaceAll(category, " ", "-"), "page1.html"}, "/")
         categories = append(categories, CategoryUrl{category, url})
     }
-    return Website{title, "", license, categories}
+
+    pages := make([]PageUrl, 0)
+    for _, page := range content.GetPages() {
+        var reference string
+        if page.Reference() != "" {
+            reference = page.Reference()
+        } else {
+            reference = strings.TrimSuffix(page.File().Name(), ".md")
+        }
+        url := "/pages/" + strings.ReplaceAll(reference, " ", "-") + ".html"
+        pageUrl := PageUrl{reference, url}
+        pages = append(pages, pageUrl)
+    }
+
+    output := content.Output()
+
+    return Website{
+        Title: title,
+        Style: "",
+        License: license,
+        CategoriesUrl: categories,
+        PagesUrl: pages,
+        Output: output
+    }
 }
 
 func (w Website) HasStyle() bool {
     return w.Style != ""
+}
+
+func (w Website) Render() {
+    // index
 }
 
 type Webpage struct {
@@ -94,8 +126,6 @@ type PostsPage struct {
     pathPrefix string
     firstPageAsIndex bool
 }
-
-
 
 func NewPostsPage(website Website, batch manager.Batch,
                   pathPrefix string,
