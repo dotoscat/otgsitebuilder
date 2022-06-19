@@ -103,6 +103,7 @@ func (w Website) HasStyle() bool {
 
 func (w Website) Render(destination string) string {
     root := filepath.Join(destination, w.Output)
+    // index
     return root
 }
 

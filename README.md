@@ -1,5 +1,96 @@
 # OTGSITEBUILDER
 
+## API
+
+* create post
+* get post
+* modify post
+* delete post
+
+* create page
+* get page
+* modify page
+* delete page
+
+* add category to post
+* remove category to post
+
+* build site
+
+
+
+/post
+
+POST
+
+returns {"result": "done", "id": <int>}
+fails {"result": "fail", "reason": <string>}
+
+/posts
+
+GET
+
+returns {"result": "done", "count": <int>}
+fails {"result": "fail", "reason": <string>}
+
+/posts/<posts-per-page:int>/<page:int>
+
+GET
+
+returns {"result": "done", "posts": [<id:int>, ...]}
+fails {"result": "fail", "reason": <string>}
+
+/post/id
+
+GET
+
+returns {"result": "done", "date": <date>, "content": <string>, "title": <string>}
+fails {"result": "fail", "reason": <string>}
+
+POST
+
+send {"update": [(date|content|title), ...], "body": <string>, "date": <date>, "title": <string>}
+returns {"result": "done"}
+fails {"result": "fail", "reason": <string>}
+
+DELETE
+
+returns {"result": "done"}
+fails {"result": "fail", "reason": <string>}
+
+/page
+
+POST
+
+returns {"result": "done", "id": <int>}
+fails {"result": "fail", "reason": <string>}
+
+/pages
+
+GET
+
+returns {"result": "done", "pages": [<int>, ...]}
+fails {"result": "fail", "reason": <string>}
+
+/page/id
+
+GET
+
+returns {"result": "done", "date": <date>, "content": <string>, "title": <string>}
+fails {"result": "fail", "reason": <string>}
+
+POST
+
+send {"update": [(content|title), ...], "body": <string>, "title": <string>}
+returns {"result": "done"}
+fails {"result": "fail", "reason": <string>}
+
+DELETE
+
+returns {"result": "done"}
+fails {"result": "fail", "reason": <string>}
+
+
 This is a static web generator which it takes another different approach
 for metadata. Instead of store metadata on posts (frontmatter), store them in a database.
 So you use commands and/or paramaters to manipulate metadata related with
