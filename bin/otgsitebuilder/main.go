@@ -15,6 +15,7 @@
 package main
 
 import (
+    /*
 	"errors"
 	"flag"
 	"fmt"
@@ -26,9 +27,10 @@ import (
 	"strings"
 	"text/template"
 	"time"
+    */
+	//"github.com/dotoscat/otgsitebuilder/src/builder"
 
-	"github.com/dotoscat/otgsitebuilder/src/builder"
-	"github.com/dotoscat/otgsitebuilder/src/manager"
+	"github.com/dotoscat/otgsitebuilder/src/server"
 )
 
 const (
@@ -36,7 +38,7 @@ const (
 	BUILDER_MODE = "builder"
 	VERSION      = "0.2.0"
 )
-
+/*
 //DataValue is special flag to handle time
 type DateValue struct {
 	time      time.Time
@@ -270,8 +272,11 @@ func build(flags FlagList) {
 	builder.CopyDir(filepath.Join(base, "static"), staticDirPath)
 	// render user pages, no posts pages
 }
-
+*/
 func main() {
+    server.Start(":8050")
+
+    /*
 	flagList := FlagList{}
 	flag.StringVar(&flagList.Mode, "mode", "", "Set the mode of use of this tool")
 	flag.StringVar(&flagList.Content, "content", "", "The content to work with (a valid directory path)")
@@ -311,4 +316,5 @@ func main() {
 		log.Fatalln("Specify '-mode' (manager or builder)")
 	}
 	flag.PrintDefaults()
+	*/
 }
