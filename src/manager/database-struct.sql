@@ -12,22 +12,14 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-CREATE TABLE IF NOT EXISTS Page (
+CREATE TABLE IF NOT EXISTS Document (
     id        INTEGER       PRIMARY KEY AUTOINCREMENT,
     title      VARCHAR (255) UNIQUE
                             NOT NULL,
-    content TEXT       DEFAULT ""
-                        NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS Post (
-    id   INTEGER       PRIMARY KEY AUTOINCREMENT,
-    title VARCHAR (255) UNIQUE
-                       NOT NULL,
     date DATE          NOT NULL
                        DEFAULT (CURRENT_DATE),
     content TEXT       DEFAULT ""
-                        NOT NULL
+                        NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS Option (
@@ -42,12 +34,26 @@ CREATE TABLE IF NOT EXISTS Option (
 
 CREATE TABLE IF NOT EXISTS Category (
     id   INTEGER       PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR (64)  UNIQUE
+    name VARCHAR (128)  UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS Category_Post (
+CREATE TABLE IF NOT EXISTS Tag (
+    id   INTEGER       PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR (128)  UNIQUE
+);
+
+-- Reserved tags: Post, Page and Draf
+
+CREATE TABLE IF NOT EXISTS Category_Document (
     category_id INT REFERENCES Category (id) ON DELETE CASCADE
                     NOT NULL,
-    post_id     INT REFERENCES Post (id) ON DELETE CASCADE
+    document_id     INT REFERENCES Document (id) ON DELETE CASCADE
+                    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Tag_Document (
+    category_id INT REFERENCES Category (id) ON DELETE CASCADE
+                    NOT NULL,
+    document_id     INT REFERENCES Document (id) ON DELETE CASCADE
                     NOT NULL
 );
