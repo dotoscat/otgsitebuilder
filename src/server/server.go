@@ -5,37 +5,59 @@ import (
     // "log"
     "embed"
     "mime"
-    //"github.com/julienschmidt/httprouter"
+    "github.com/julienschmidt/httprouter"
+    "fmt"
+
+    // "github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
 //go:embed app/*
 var appFS embed.FS
 var appFileSystem http.FileSystem
 
-//func postHandler(c *gin.Context) {
-//    c.String(http.StatusOK, "OK")
-//}
+func NewWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
+    fmt.Fprint(w, "New website!")
+}
+
+func LoadWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
+    fmt.Fprint(w, "Load website!")
+}
+
+func SaveWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
+    fmt.Fprint(w, "Save website!")
+}
+
+func BuildWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
+    fmt.Fprint(w, "Build website!")
+}
+
+func PathContent(w http.ResponseWriter, _ *http.Request, ps httprouter.Params) {
+    path := ps.ByName("path")
+    if path == "home" {
+        fmt.Fprintf(w, "Default directory")
+    } else {
+        fmt.Fprintf(w, "Something else")
+    }
+}
 
 func Start(addr string) error {
     mime.AddExtensionType(".js", "text/javascript")
-    // router := gin.Default()
-
-    // router.StaticFS("/public", http.FS(appFS))
-
-    //router.GET("/", func(c *gin.Context) {
-    //    c.HTML(http.StatusOK, "index.html", nil)
-    //})
-
     appFileSystem = http.FS(appFS)
 
-    // router.Run(addr)
-    //router := httprouter.New()
-    //router.ServeFiles("/*filepath", appFileSystem)
-    //http.ListenAndServe(addr, router)
-
     //http.HandleFunc("/",)
-    http.Handle("/", http.FileServer(appFileSystem))
-    http.ListenAndServe(addr, nil)
+    // http.Handle("/", http.FileServer(appFileSystem))
 
-    return nil
+    router := httprouter.New()
+
+    // Specify the path to the website content
+    router.POST("/website", NewWebsite)
+    router.GET("/website/:path", LoadWebsite) //add to url the path
+    router.PUT("/website", SaveWebsite)
+    router.POST("/website/build", BuildWebsite)
+
+    router.GET("/path/:path", PathContent)
+
+    err := http.ListenAndServe(addr, router)
+
+    return err
 }

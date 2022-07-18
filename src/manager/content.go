@@ -27,6 +27,12 @@ type Content struct {
 	pagesPath string
 }
 
+var NilContent Content = Content{nil, "", ""}
+
+func (c Content) IsNil() bool {
+    return c.db == nil && c.postsPath == "" && c.pagesPath == ""
+}
+
 func (c Content) Close() error {
 	return c.db.Close()
 }

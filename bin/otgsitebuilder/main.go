@@ -274,7 +274,7 @@ func build(flags FlagList) {
 }
 */
 func main() {
-    server.Start(":8050")
+    server.Start(":8080")
 
     /*
 	flagList := FlagList{}
