@@ -73,21 +73,21 @@ func listPath(path string) (dirList DirList) {
     return
 }
 
+func outputPath(w http.ResponseWriter, path string) {
+    dirList := listPath(path)
+    if output, err := json.Marshal(dirList); err != nil {
+        fmt.Fprintln(w, err)
+    } else {
+        fmt.Fprintln(w, string(output))
+    }
+}
+
 func HomeContent(w http.ResponseWriter) {
     if homeDir, err := os.UserHomeDir(); err != nil {
         fmt.Println(err)
     } else {
-        dirList := listPath(homeDir)
-        if output, err := json.Marshal(dirList); err != nil {
-            fmt.Fprintln(w, err)
-        } else {
-            fmt.Fprintln(w, string(output))
-        }
+        outputPath(w, homeDir)
     }
-}
-
-func PathContent(w http.ResponseWriter, requestedPath string) {
-    fmt.Fprintf(w, requestedPath)
 }
 
 func PathHandler(w http.ResponseWriter, _ *http.Request, ps httprouter.Params) {
@@ -95,7 +95,7 @@ func PathHandler(w http.ResponseWriter, _ *http.Request, ps httprouter.Params) {
     if requestedPath == "home" {
         HomeContent(w)
     } else {
-        PathContent(w, requestedPath)
+        outputPath(w, requestedPath)
     }
 }
 
