@@ -2,12 +2,16 @@ package server
 
 import (
     "net/http"
+    "net/url"
+    "os"
+    "encoding/json"
     // "log"
     "embed"
     "mime"
-    "github.com/julienschmidt/httprouter"
     "fmt"
+    "path/filepath"
 
+    "github.com/julienschmidt/httprouter"
     // "github.com/dotoscat/otgsitebuilder/src/manager"
 )
 
@@ -31,12 +35,67 @@ func BuildWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
     fmt.Fprint(w, "Build website!")
 }
 
-func PathContent(w http.ResponseWriter, _ *http.Request, ps httprouter.Params) {
-    path := ps.ByName("path")
-    if path == "home" {
-        fmt.Fprintf(w, "Default directory")
+type DirEntry struct {
+    PathUrl string
+    Name string
+    Ftype string
+}
+
+type DirList struct {
+    Parent string
+    List []DirEntry
+}
+
+func listPath(path string) (dirList DirList) {
+    // parent
+    // list: [{url, name, type}]
+
+    if paths, err := os.ReadDir(path); err != nil {
+        return
     } else {
-        fmt.Fprintf(w, "Something else")
+        dirList.Parent = filepath.Dir(path)
+        for _, file := range paths {
+            dirEntry := DirEntry{}
+
+            dirEntry.PathUrl = url.PathEscape(filepath.Join(path, file.Name()))
+
+            dirEntry.Name = file.Name()
+
+            if file.Type().IsDir() == true {
+                dirEntry.Ftype = "d"
+            } else if file.Type().IsRegular() == true {
+                dirEntry.Ftype = "f"
+            }
+
+            dirList.List = append(dirList.List, dirEntry)
+        }
+    }
+    return
+}
+
+func HomeContent(w http.ResponseWriter) {
+    if homeDir, err := os.UserHomeDir(); err != nil {
+        fmt.Println(err)
+    } else {
+        dirList := listPath(homeDir)
+        if output, err := json.Marshal(dirList); err != nil {
+            fmt.Fprintln(w, err)
+        } else {
+            fmt.Fprintln(w, string(output))
+        }
+    }
+}
+
+func PathContent(w http.ResponseWriter, requestedPath string) {
+    fmt.Fprintf(w, requestedPath)
+}
+
+func PathHandler(w http.ResponseWriter, _ *http.Request, ps httprouter.Params) {
+    requestedPath := ps.ByName("path")
+    if requestedPath == "home" {
+        HomeContent(w)
+    } else {
+        PathContent(w, requestedPath)
     }
 }
 
@@ -55,7 +114,7 @@ func Start(addr string) error {
     router.PUT("/website", SaveWebsite)
     router.POST("/website/build", BuildWebsite)
 
-    router.GET("/path/:path", PathContent)
+    router.GET("/path/:path", PathHandler)
 
     err := http.ListenAndServe(addr, router)
 
