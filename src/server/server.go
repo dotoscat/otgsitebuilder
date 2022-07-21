@@ -5,7 +5,7 @@ import (
     "net/url"
     "os"
     "encoding/json"
-    // "log"
+    "log"
     "embed"
     "mime"
     "fmt"
@@ -53,7 +53,7 @@ func listPath(path string) (dirList DirList) {
     if paths, err := os.ReadDir(path); err != nil {
         return
     } else {
-        dirList.Parent = filepath.Dir(path)
+        dirList.Parent = url.PathEscape(filepath.Dir(path))
         for _, file := range paths {
             dirEntry := DirEntry{}
 
@@ -118,6 +118,7 @@ func Start(addr string) error {
 
     router.GET("/path/:path", PathHandler)
 
+    log.Println("Ready to go")
     err := http.ListenAndServe(addr, router)
 
     return err
