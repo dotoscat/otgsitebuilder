@@ -75,6 +75,7 @@ func listPath(path string) (dirList DirList) {
 
 func outputPath(w http.ResponseWriter, path string) {
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     dirList := listPath(path)
     if output, err := json.Marshal(dirList); err != nil {
         fmt.Fprintln(w, err)
