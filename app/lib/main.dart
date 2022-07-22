@@ -116,6 +116,8 @@ class _WebsiteDataState extends State<WebsiteData> {
 
 }
 
+// <Widget>[] create
+
 Future<void> loadWebsite(BuildContext context, {String path = "home"}) async {
     final String finalPath = "path/$path";
 
@@ -146,24 +148,46 @@ Future<void> loadWebsite(BuildContext context, {String path = "home"}) async {
                     DirEntry entry = DirEntry(parent, ".. (Parent)", 'd');
                     Navigator.pop(context, entry);
                 },
-                child: const Text(".. (Parent)")
+                child: Row(
+                    children: <Widget>[
+                        const Text(".. (Parent)"),
+                        const Icon(
+                            Icons.folder,
+                            color: Colors.blue,
+                            size: 16.0
+                        )])
             )
         ];
 
         for (final child in data["List"]){
             // debugPrint("child: $child; ${child['Name']}");
+            DirEntry entry = DirEntry(child["PathUrl"], child["Name"], child["Ftype"]);
+            late Icon icon;
+            if (entry.isDir()) {
+                icon = Icon(
+                    Icons.folder,
+                    color: Colors.blue,
+                    size: 16.0);
+            } else {
+                icon = Icon(
+                    Icons.text_snippet,
+                    color: Colors.blue,
+                    size: 16.0);
+            }
             SimpleDialogOption option = SimpleDialogOption(
                 onPressed: () {
-                    DirEntry entry = DirEntry(child["PathUrl"], child["Name"], child["Ftype"]);
                     Navigator.pop(context, entry);
                 },
-                child: Text(child["Name"])
+                child: Row(
+                    children: <Widget>[
+                        Text(child["Name"]),
+                        icon])
             );
 
             widgetDirEntry.add(option);
         }
 
-        final String pathText = entry.isDir() ? entry.name : path;
+        final String pathText = entry.empty() ? "home" : Uri.decodeFull(entry.urlPath);
 
         entry = await showDialog<DirEntry>(
             context: context,
