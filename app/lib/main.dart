@@ -116,7 +116,14 @@ class _WebsiteDataState extends State<WebsiteData> {
 
 }
 
-// <Widget>[] create
+class Website {
+    String path;
+    String title;
+    int postsPerPage;
+    String output;
+
+    Website(this.path, this.title, this.postsPerPage, this.output);
+}
 
 Future<void> loadWebsite(BuildContext context, {String path = "home"}) async {
     final String finalPath = "path/$path";
@@ -200,6 +207,15 @@ Future<void> loadWebsite(BuildContext context, {String path = "home"}) async {
         );
 
         debugPrint("entry: $entry");
+
+        if (entry == null) {
+            continue;
+        }
+
+        final urlLoadFile = Uri(scheme: "http", host: "localhost", port: 8080, path: "/website/${entry.urlPath}");
+        http.Response loadFileResponse = await http.get(urlLoadFile);
+
+        debugPrint("loadFileResponse: ${loadFileResponse.body}");
 
         } //while
 

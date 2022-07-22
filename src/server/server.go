@@ -23,8 +23,11 @@ func NewWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
     fmt.Fprint(w, "New website!")
 }
 
-func LoadWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
-    fmt.Fprint(w, "Load website!")
+func LoadWebsite(w http.ResponseWriter, _ *http.Request, ps httprouter.Params) {
+    path := ps.ByName("path")
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    fmt.Fprint(w, "Load website!", path)
 }
 
 func SaveWebsite(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
