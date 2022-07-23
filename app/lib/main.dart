@@ -3,6 +3,8 @@ import "dart:convert";
 
 import 'package:http/http.dart' as http;
 
+import "fileDialog.dart";
+
 void main() {
   runApp(const MyApp());
 }
@@ -250,6 +252,7 @@ class WebsiteScreen extends StatelessWidget {
                     TextButton(
                         onPressed: () {
                             debugPrint("Build website");
+                            fileDialog(context, "aaaarrgghhhh");
                         },
                         child: const Text("Build website")),
                 ]),
