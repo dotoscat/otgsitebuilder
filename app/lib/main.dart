@@ -9,32 +9,6 @@ void main() {
   runApp(const MyApp());
 }
 
-class DirEntry {
-    String urlPath = "";
-    String name = "";
-    String ftype = "";
-
-    DirEntry(this.urlPath, this.name, this.ftype);
-
-    bool empty() {
-        return this.urlPath == "" && this.name == "" && this.ftype == "";
-    }
-
-    String toString() {
-        return "urlPath: ${this.urlPath};name: ${this.name};ftype: ${this.ftype}";
-    }
-
-    bool isDir() {
-        return this.ftype == "d" || this.ftype == "dir";
-    }
-
-}
-
-class DirList {
-    String parent = "";
-    List<DirEntry> list = [];
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -129,6 +103,7 @@ class Website {
 
 Future<void> loadWebsite(BuildContext context, {String path = "home"}) async {
     final String finalPath = "path/$path";
+    /*
 
     var url = Uri(scheme: "http", host: "localhost", port: 8080, path: finalPath);
     debugPrint("Uri: $url");
@@ -224,6 +199,7 @@ Future<void> loadWebsite(BuildContext context, {String path = "home"}) async {
     } catch (err) {
         debugPrint("error: $err");
     }
+    */
 }
 
 class WebsiteScreen extends StatelessWidget {

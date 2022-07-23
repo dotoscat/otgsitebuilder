@@ -1,5 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import "dart:convert";
+
+class DirEntry {
+    final String pathUrl;
+    final String name;
+    final String ftype;
+
+    const DirEntry({required this.pathUrl, required this.name, required this.ftype});
+
+    bool empty() {
+        return this.pathUrl == "" && this.name == "" && this.ftype == "";
+    }
+
+    String toString() {
+        return "urlPath: ${this.pathUrl};name: ${this.name};ftype: ${this.ftype}";
+    }
+
+    bool isDir() {
+        return this.ftype == "d" || this.ftype == "dir";
+    }
+
+}
+
+class DirList {
+    final String parent;
+    final List<DirEntry> list;
+
+    const DirList({required this.parent, required this.list});
+
+    factory DirList.fromJson(Map<String, dynamic> json) {
+
+        List<DirEntry> dirEntryList = [];
+
+        for(final element in json["List"]) {
+            DirEntry entry = DirEntry(
+                pathUrl: element["PathUrl"],
+                name: element["Name"],
+                ftype: element["Ftype"]
+            );
+            dirEntryList.add(entry);
+        }
+
+        return DirList(parent: json["Parent"], list: dirEntryList);
+    }
+}
+
+class DirListWidget extends StatelessWidget {
+    DirList? list;
+
+    DirListWidget({required DirList dirList, Key? key}) : super(key : key) {
+        this.list = dirList;
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return Expanded(
+            child: ListView()
+        );
+    }
+}
+
+Future<DirList> requestDirList(String path) async {
+    final Uri url = Uri(scheme: "http", host: "localhost", port: 8080, path: "/path/$path");
+    final response = await http.get(url);
+    debugPrint("Response: $response");
+    if (response.statusCode == 200) {
+        debugPrint("Response body: ${response.body}");
+        return DirList.fromJson(jsonDecode(response.body));
+    } else {
+        throw Exception("Failed to load: $path");
+    }
+}
 
 class _FileDialog extends StatefulWidget {
     _FileDialog({Key? key}) : super(key: key);
@@ -9,19 +81,40 @@ class _FileDialog extends StatefulWidget {
 }
 
 class _FileDialogState extends State<_FileDialog> {
+    String path = "home";
+    late Future<DirList> dirList;
+
+    @override
+    initState() {
+        super.initState();
+        dirList = requestDirList(path);
+        debugPrint("init state _FileDialogState");
+    }
 
     @override
     Widget build(BuildContext context) {
+        debugPrint("Build fileDialogState");
 
         List<Widget> children = <Widget>[
-            Center(child: Text("some path")),
-            Expanded(
-                child: ListView()
+            Center(child: Text(path)),
+            FutureBuilder<DirList>(
+                future: dirList,
+                builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                        return DirListWidget(dirList: snapshot.data!);
+                    } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                    } else {
+                        return const CircularProgressIndicator();
+                    }
+                }
             ),
             Row(
                 children: <Widget>[
                     TextButton(
-                        onPressed: (){},
+                        onPressed: (){
+                            setState(() => path = "ok path!");
+                        },
                         child: Text("Ok")
                     ),
                     TextButton(
@@ -38,6 +131,7 @@ class _FileDialogState extends State<_FileDialog> {
             children: children
         );
     }
+
 }
 
 Future<void> fileDialog(BuildContext context, String path) async {
