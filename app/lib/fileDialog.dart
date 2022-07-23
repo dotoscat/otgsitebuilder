@@ -25,7 +25,9 @@ class _FileDialogState extends State<_FileDialog> {
                         child: Text("Ok")
                     ),
                     TextButton(
-                        onPressed: (){},
+                        onPressed: (){
+                            Navigator.pop(context);
+                        },
                         child: Text("Cancel")
                     )
                 ]
