@@ -111,6 +111,7 @@ class _FileDialog extends StatefulWidget {
 class _FileDialogState extends State<_FileDialog> {
     String path = "home";
     late Future<DirList> dirList;
+    late DirList? currentDirList;
 
     @override
     initState() {
@@ -122,10 +123,20 @@ class _FileDialogState extends State<_FileDialog> {
     void askDirList(DirEntry entry) {
         if (entry.isDir()) {
             setState(() {
-                path = Uri.decodeFull(entry.pathUrl);
+                path = currentDirList!.parent;
                 dirList = requestDirList(entry.pathUrl);
             });
         }
+    }
+
+    void askParent() {
+        if (currentDirList == null) {
+            return;
+        }
+        setState((){
+            path = currentDirList!.parent;
+            dirList = requestDirList(currentDirList!.parent);
+        });
     }
 
     @override
@@ -134,6 +145,16 @@ class _FileDialogState extends State<_FileDialog> {
 
         List<Widget> children = <Widget>[
             Center(child: Text(path)),
+            TextButton.icon(
+                onPressed: (){
+                    if (currentDirList == null) {
+                        return;
+                    }
+                    askParent();
+                },
+                icon: Icon(Icons.arrow_upward),
+                label: const Text("Parent")
+            ),
             FutureBuilder<DirList>(
                 future: dirList,
                 builder: (context, snapshot) {
