@@ -185,16 +185,11 @@ class _FileDialogState extends State<_FileDialog> {
 
 }
 
-Future<void> fileDialog(BuildContext context, String path) async {
-
-    String? chosenPath = await showDialog<String>(
+Future<String?> fileDialog(BuildContext context) {
+    return showDialog<String>(
         context: context,
         builder: (BuildContext context) {
             return Dialog(child: _FileDialog());
         }
     );
-
-    debugPrint("Chosen path: $chosenPath");
-
-    debugPrint("Hello! $path");
 }
