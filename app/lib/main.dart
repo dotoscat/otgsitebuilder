@@ -119,12 +119,15 @@ class WebsiteScreen extends StatelessWidget {
                     TextButton(
                         onPressed: () {
                             debugPrint("New website");
+                            fileDialog(context, DialogMode.save).then((path) {
+                                debugPrint("The chosen path to save is: $path");
+                            }, onError: (err) => debugPrint(err));
                         },
                         child: const Text("New website")),
                     TextButton(
                         onPressed: () {
                             debugPrint("Load website");
-                            fileDialog(context).then((path) {
+                            fileDialog(context, DialogMode.open).then((path) {
                                 debugPrint("The chosen path is: $path");
                             }, onError: (err) => debugPrint(err));
                         },

@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import "dart:convert";
 
+enum DialogMode {
+    open,
+    save
+}
+
 class DirEntry {
     final String pathUrl;
     final String name;
@@ -102,7 +107,9 @@ Future<DirList> requestDirList(String path) async {
 }
 
 class _FileDialog extends StatefulWidget {
-    _FileDialog({Key? key}) : super(key: key);
+    DialogMode mode;
+
+    _FileDialog(this.mode, {Key? key}) : super(key: key);
 
     @override
     State<_FileDialog> createState() => _FileDialogState();
@@ -170,26 +177,43 @@ class _FileDialogState extends State<_FileDialog> {
                     }
                 }
             ),
-            TextButton(
-                onPressed: (){
-                    Navigator.pop(context);
-                },
-                child: Text("Close")
-            ),
         ];
 
+        late List<Widget> finalChildren;
+
+        if (widget.mode == DialogMode.open) {
+            finalChildren = children + <Widget>[
+                TextButton(
+                    onPressed: (){
+                        Navigator.pop(context);
+                    },
+                    child: Text("Close")
+                ),
+            ];
+        } else {
+            finalChildren = children + <Widget>[
+                TextButton(
+                    onPressed: (){
+                        debugPrint("Bring route for file to save.");
+                    },
+                    child: Text("Save")
+                ),
+            ];
+
+        }
+
         return Column(
-            children: children
+            children: finalChildren
         );
     }
 
 }
 
-Future<String?> fileDialog(BuildContext context) {
+Future<String?> fileDialog(BuildContext context, DialogMode mode) {
     return showDialog<String>(
         context: context,
         builder: (BuildContext context) {
-            return Dialog(child: _FileDialog());
+            return Dialog(child: _FileDialog(mode));
         }
     );
 }
