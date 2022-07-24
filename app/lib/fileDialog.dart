@@ -48,9 +48,9 @@ class DirList {
 
 class DirListWidget extends StatelessWidget {
     DirList? dirList;
-    void Function(DirEntry) updateList;
+    void Function(DirEntry) pickElement;
 
-    DirListWidget(this.updateList, {required DirList dirList, Key? key}) : super(key : key) {
+    DirListWidget(this.pickElement, {required DirList dirList, Key? key}) : super(key : key) {
         this.dirList = dirList;
     }
 
@@ -78,7 +78,7 @@ class DirListWidget extends StatelessWidget {
                         }
                         return TextButton.icon(
                             onPressed: () {
-                                updateList(this.dirList!.list[i]);
+                                pickElement(this.dirList!.list[i]);
                             },
                            label: Text(this.dirList!.list[i].name),
                            icon: icon
@@ -185,12 +185,14 @@ class _FileDialogState extends State<_FileDialog> {
 
 Future<void> fileDialog(BuildContext context, String path) async {
 
-    await showDialog<void>(
+    String? chosenPath = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
             return Dialog(child: _FileDialog());
         }
     );
+
+    debugPrint("Chosen path: $chosenPath");
 
     debugPrint("Hello! $path");
 }
