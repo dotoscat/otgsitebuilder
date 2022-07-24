@@ -47,16 +47,21 @@ class DirList {
 }
 
 class DirListWidget extends StatelessWidget {
-    DirList? list;
+    DirList? dirList;
 
     DirListWidget({required DirList dirList, Key? key}) : super(key : key) {
-        this.list = dirList;
+        this.dirList = dirList;
     }
 
     @override
     Widget build(BuildContext context) {
         return Expanded(
-            child: ListView()
+            child: ListView(
+                children: List<Widget>.generate(
+                    this.dirList!.list.length,
+                    (int i) => Text("${this.dirList!.list[i]}")
+                )
+            )
         );
     }
 }
@@ -66,7 +71,6 @@ Future<DirList> requestDirList(String path) async {
     final response = await http.get(url);
     debugPrint("Response: $response");
     if (response.statusCode == 200) {
-        debugPrint("Response body: ${response.body}");
         return DirList.fromJson(jsonDecode(response.body));
     } else {
         throw Exception("Failed to load: $path");
