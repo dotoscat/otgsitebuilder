@@ -59,7 +59,30 @@ class DirListWidget extends StatelessWidget {
             child: ListView(
                 children: List<Widget>.generate(
                     this.dirList!.list.length,
-                    (int i) => Text("${this.dirList!.list[i]}")
+                    (int i) {
+                        DirEntry entry = this.dirList!.list[i];
+                        late Icon icon;
+                        if (entry.isDir()) {
+                            icon = Icon(
+                                Icons.folder,
+                                color: Colors.blue,
+                                size: 16.0
+                            );
+                        } else {
+                            icon = Icon(
+                                Icons.text_snippet,
+                                color: Colors.blue,
+                                size: 16.0
+                            );
+                        }
+                        return TextButton.icon(
+                            onPressed: () {
+                                debugPrint("Pulsed $i!");
+                            },
+                           label: Text(this.dirList!.list[i].name),
+                           icon: icon
+                        );
+                    }
                 )
             )
         );
