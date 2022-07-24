@@ -48,7 +48,7 @@ class DirList {
 
 class DirListWidget extends StatelessWidget {
     DirList? dirList;
-    void Function(DirEntry) pickElement;
+    void Function(BuildContext, DirEntry) pickElement;
 
     DirListWidget(this.pickElement, {required DirList dirList, Key? key}) : super(key : key) {
         this.dirList = dirList;
@@ -78,7 +78,7 @@ class DirListWidget extends StatelessWidget {
                         }
                         return TextButton.icon(
                             onPressed: () {
-                                pickElement(this.dirList!.list[i]);
+                                pickElement(context, this.dirList!.list[i]);
                             },
                            label: Text(this.dirList!.list[i].name),
                            icon: icon
@@ -120,12 +120,14 @@ class _FileDialogState extends State<_FileDialog> {
         debugPrint("init state _FileDialogState");
     }
 
-    void askDirList(DirEntry entry) {
+    void askDirList(BuildContext context, DirEntry entry) {
         if (entry.isDir()) {
             setState(() {
                 path = entry.pathUrl;
                 dirList = requestDirList(entry.pathUrl);
             });
+        } else {
+            Navigator.pop(context, entry.pathUrl);
         }
     }
 
