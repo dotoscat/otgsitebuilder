@@ -123,7 +123,7 @@ class _FileDialogState extends State<_FileDialog> {
     void askDirList(DirEntry entry) {
         if (entry.isDir()) {
             setState(() {
-                path = currentDirList!.parent;
+                path = entry.pathUrl;
                 dirList = requestDirList(entry.pathUrl);
             });
         }
@@ -144,7 +144,7 @@ class _FileDialogState extends State<_FileDialog> {
         debugPrint("Build fileDialogState");
 
         List<Widget> children = <Widget>[
-            Center(child: Text(path)),
+            Center(child: Text(Uri.decodeFull(path))),
             TextButton.icon(
                 onPressed: (){
                     if (currentDirList == null) {
@@ -159,6 +159,7 @@ class _FileDialogState extends State<_FileDialog> {
                 future: dirList,
                 builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                        currentDirList = snapshot.data!;
                         return DirListWidget(this.askDirList, dirList: snapshot.data!);
                     } else if (snapshot.hasError) {
                         return Text("${snapshot.error}");
@@ -167,21 +168,11 @@ class _FileDialogState extends State<_FileDialog> {
                     }
                 }
             ),
-            Row(
-                children: <Widget>[
-                    TextButton(
-                        onPressed: (){
-                            setState(() => path = "ok path!");
-                        },
-                        child: Text("Ok")
-                    ),
-                    TextButton(
-                        onPressed: (){
-                            Navigator.pop(context);
-                        },
-                        child: Text("Cancel")
-                    )
-                ]
+            TextButton(
+                onPressed: (){
+                    Navigator.pop(context);
+                },
+                child: Text("Close")
             ),
         ];
 
