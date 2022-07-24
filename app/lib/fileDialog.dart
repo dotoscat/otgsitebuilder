@@ -48,8 +48,9 @@ class DirList {
 
 class DirListWidget extends StatelessWidget {
     DirList? dirList;
+    void Function(DirEntry) updateList;
 
-    DirListWidget({required DirList dirList, Key? key}) : super(key : key) {
+    DirListWidget(this.updateList, {required DirList dirList, Key? key}) : super(key : key) {
         this.dirList = dirList;
     }
 
@@ -77,7 +78,7 @@ class DirListWidget extends StatelessWidget {
                         }
                         return TextButton.icon(
                             onPressed: () {
-                                debugPrint("Pulsed $i!");
+                                updateList(this.dirList!.list[i]);
                             },
                            label: Text(this.dirList!.list[i].name),
                            icon: icon
@@ -118,6 +119,15 @@ class _FileDialogState extends State<_FileDialog> {
         debugPrint("init state _FileDialogState");
     }
 
+    void askDirList(DirEntry entry) {
+        if (entry.isDir()) {
+            setState(() {
+                path = Uri.decodeFull(entry.pathUrl);
+                dirList = requestDirList(entry.pathUrl);
+            });
+        }
+    }
+
     @override
     Widget build(BuildContext context) {
         debugPrint("Build fileDialogState");
@@ -128,7 +138,7 @@ class _FileDialogState extends State<_FileDialog> {
                 future: dirList,
                 builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                        return DirListWidget(dirList: snapshot.data!);
+                        return DirListWidget(this.askDirList, dirList: snapshot.data!);
                     } else if (snapshot.hasError) {
                         return Text("${snapshot.error}");
                     } else {
