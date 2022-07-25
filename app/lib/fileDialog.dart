@@ -119,6 +119,7 @@ class _FileDialogState extends State<_FileDialog> {
     String path = "home";
     late Future<DirList> dirList;
     late DirList? currentDirList;
+    final TextEditingController fileNameController = TextEditingController();
 
     @override
     initState() {
@@ -194,15 +195,29 @@ class _FileDialogState extends State<_FileDialog> {
                 ),
             ];
         } else {
+            TextField fileNameField = TextField(
+                onSubmitted: (String fileName) {
+                    final String path = <String>[this.path, fileName].join("/");
+                    debugPrint("onSubmitted: $path");
+                    Navigator.pop(context, path);
+                },
+                controller: fileNameController,
+                decoration: InputDecoration(
+                    labelText: "File name"
+                )
+            );
             finalChildren = children + <Widget>[
+                fileNameField,
                 TextButton(
                     onPressed: (){
-                        debugPrint("Bring route for file to save.");
+                        final String fileName = fileNameController.text;
+                        final String path = <String>[this.path, fileName].join("/");
+                        Navigator.pop(context, path);
+                        debugPrint("Bring route for file to save: $path");
                     },
                     child: Text("Save")
                 ),
             ];
-
         }
 
         return Column(
