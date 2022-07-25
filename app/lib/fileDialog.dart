@@ -134,6 +134,9 @@ class _FileDialogState extends State<_FileDialog> {
                 dirList = requestDirList(entry.pathUrl);
             });
         } else {
+            if (widget.mode == DialogMode.save) {
+                return;
+            }
             Navigator.pop(context, entry.pathUrl);
         }
     }
