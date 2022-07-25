@@ -185,14 +185,16 @@ class _FileDialogState extends State<_FileDialog> {
 
         late List<Widget> finalChildren;
 
+        TextButton closeButton = TextButton(
+                onPressed: (){
+                    Navigator.pop(context);
+                },
+                child: Text("Close")
+            );
+
         if (widget.mode == DialogMode.open) {
             finalChildren = children + <Widget>[
-                TextButton(
-                    onPressed: (){
-                        Navigator.pop(context);
-                    },
-                    child: Text("Close")
-                ),
+                closeButton,
             ];
         } else {
             TextField fileNameField = TextField(
@@ -208,15 +210,20 @@ class _FileDialogState extends State<_FileDialog> {
             );
             finalChildren = children + <Widget>[
                 fileNameField,
-                TextButton(
-                    onPressed: (){
-                        final String fileName = fileNameController.text;
-                        final String path = <String>[this.path, fileName].join("/");
-                        Navigator.pop(context, path);
-                        debugPrint("Bring route for file to save: $path");
-                    },
-                    child: Text("Save")
-                ),
+                Row(
+                    children: <Widget>[
+                        closeButton,
+                        TextButton(
+                            onPressed: (){
+                                final String fileName = fileNameController.text;
+                                final String path = <String>[this.path, fileName].join("/");
+                                debugPrint("Bring route for file to save: $path");
+                                Navigator.pop(context, path);
+                            },
+                            child: Text("Save")
+                        )
+                    ]
+                )
             ];
         }
 
